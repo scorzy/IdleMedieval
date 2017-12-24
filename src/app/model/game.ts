@@ -76,6 +76,7 @@ export class Game {
             u.madeBy.forEach(p =>
                 u.totalPerSec = u.totalPerSec.plus(p.prodPerSec.times(p.productor.quantity))
             )
+            u.actions.forEach(a => a.reloadMaxBuy())
         })
     }
 
@@ -117,7 +118,10 @@ export class Game {
         this.hunter.quantity = new Decimal(1)
         this.productionTable.push(new Production(this.hunter, this.food, new Decimal(1)))
 
-        this.hunter.actions.push(new Buy([new Cost(this.food, new Decimal(10))], this.hunter))
+        const buyHunter = new Buy([new Cost(this.food, new Decimal(10))], this.hunter)
+        buyHunter.unlocked = true
+        this.hunter.actions.push(buyHunter)
+
         const workList = new TypeList("Workers")
         workList.list.push(this.hunter)
         this.mainLists.push(workList)

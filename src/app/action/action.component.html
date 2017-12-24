@@ -10,12 +10,12 @@
 
     <div class="card-text">
         <span>{{action.description}} &nbsp;</span>
-        <p class="no-margin" *ngIf="!(action.oneTime && action.owned()) && !action.limit?.greaterThanOrEqualTo(action.maxBuy)">
+        <p class="no-margin" *ngIf="!(action.oneTime && action.owned)">
             <span *ngIf="!action.oneTime; else costs">Getting one will costs:</span>
             <ng-template #costs>
                 <span *ngIf="action.oneTime">Costs:</span>
             </ng-template>
-            <span *ngFor="let p of action.realPriceNow" [ngClass]="{'notEnought': p.basePrice.greaterThan(p.unit.quantity)}">
+            <span *ngFor="let p of action.realPriceNow" [ngClass]="{'notEnought': p.basePrice.greaterThan(p.what.quantity)}">
                 {{numberformat.formatShort(p.basePrice)}} {{p.what.name}},
             </span>
             <br/>
@@ -48,8 +48,8 @@
     <div *ngIf="!action.maxBuy.greaterThanOrEqualTo(1) && !(action.oneTime && action.owned())">
         <div class="progress-block" *ngFor="let cost of action.realPriceNow; trackBy:getPriceId">
             <label>{{cost.basePrice | format}}&nbsp;{{cost.what.name}}</label>
-            <div class="progress-static" [ngClass]="{'success': cost.unit.quantity.greaterThanOrEqualTo(cost.basePrice), 'danger': !cost.unit.quantity.greaterThanOrEqualTo(cost.basePrice)}">
-                <div class="progress-meter" max="100" attr.data-value="{{Math.min(cost.unit.quantity.times(100).div(cost.basePrice).floor().toNumber(),100)}}">
+            <div class="progress-static" [ngClass]="{'success': cost.what.quantity.greaterThanOrEqualTo(cost.basePrice), 'danger': !cost.what.quantity.greaterThanOrEqualTo(cost.basePrice)}">
+                <div class="progress-meter" max="100" attr.data-value="{{Math.min(cost.what.quantity.times(100).div(cost.basePrice).floor().toNumber(),100)}}">
                 </div>
             </div>
         </div>

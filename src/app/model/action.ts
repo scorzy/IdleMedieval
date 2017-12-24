@@ -11,6 +11,7 @@ export class Action extends Base {
     showNumber = true
     showHide = true
     show = true
+    owned = false
     public up: Action
 
     constructor(
@@ -19,6 +20,7 @@ export class Action extends Base {
         public unit: Unit = null
     ) {
         super(id)
+        this.realPriceNow = price
     }
 
     getCosts(number: Decimal = new Decimal(1)) {
@@ -36,23 +38,23 @@ export class Action extends Base {
         })
     }
 
-    reloadMaxBuy(): Decimal {
+    reloadMaxBuy() {
         if (!this.unlocked) {
-            return new Decimal(0)
+            this.maxBuy = new Decimal(0)
+        } else {
+            //    https://blog.kongregate.com/the-math-of-idle-games-part-i/
+            let max = new Decimal(Number.POSITIVE_INFINITY)
+            for (const p of this.price) {
+                max = Decimal.min(max,
+                    Decimal.floor(p.increment.lessThanOrEqualTo(1) ? p.what.quantity.div(p.basePrice) : (
+                        ((p.increment.minus(1)).times(p.what.quantity))
+                            .div((p.increment.pow(this.quantity)).times(p.basePrice))
+                    ).plus(1).log(p.increment))
+                )
+            }
+            // console.log(max.toString())
+            this.maxBuy = max
         }
-
-        //    https://blog.kongregate.com/the-math-of-idle-games-part-i/
-        let max = new Decimal(Number.POSITIVE_INFINITY)
-        for (const p of this.price) {
-            max = Decimal.min(max,
-                Decimal.floor(p.increment.lessThanOrEqualTo(1) ? p.what.quantity.div(p.basePrice) : (
-                    ((p.increment.minus(1)).times(p.what.quantity))
-                        .div((p.increment.pow(this.quantity)).times(p.basePrice))
-                ).plus(1).log(p.increment))
-            )
-        }
-
-        this.maxBuy = max
     }
 
     buy(number: Decimal = new Decimal(1)): boolean {
@@ -65,6 +67,7 @@ export class Action extends Base {
             prices.forEach(p => p.what.quantity = p.what.quantity.minus(p.basePrice))
             this.quantity = this.quantity.plus(number)
             this.realPriceNow = this.getCosts()
+            this.owned = true
             return true
         }
         return false
@@ -79,6 +82,7 @@ export class Buy extends Action {
         price = new Array<Cost>(),
         unit: Unit = null) {
         super("buy", price, unit)
+        this.name = "Hire"
     }
     buy(number: Decimal = new Decimal(1)): boolean {
         if (super.buy(number)) {

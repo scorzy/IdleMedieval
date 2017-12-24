@@ -3,6 +3,7 @@ import { Action } from 'app/model/action';
 import { Cost } from 'app/model/cost';
 import * as numberformat from 'swarm-numberformat';
 import { ServService } from 'app/serv.service';
+import { Decimal } from 'decimal.js';
 
 @Component({
     selector: 'app-action',
@@ -35,7 +36,7 @@ export class ActionComponent implements OnInit {
     }
 
     ngOnInit() {
-        this.action.maxBuy = this.action.reloadMaxBuy()
+       this.action.reloadMaxBuy()
     }
 
     getReqNum(): Decimal {
