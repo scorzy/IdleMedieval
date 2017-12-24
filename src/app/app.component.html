@@ -1,0 +1,40 @@
+<clr-main-container>
+
+    <clr-header [ngClass]="getClass()">
+
+        <div class="branding">
+            <a href="javascript://" class="nav-link" routerLink="/main/unit">
+                <!-- <clr-icon shape="vm-bug"></clr-icon> -->
+
+                <span class="title">Idle Medieval</span>
+            </a>
+        </div>
+        <div class="header-nav" [clr-nav-level]="1">
+            <a class="nav-link" class="nav-link nav-text" routerLinkActive="active" routerLink="/main">Units</a>
+
+        </div>
+        <div class="header-actions">
+
+            <form class="search">
+                <label id="multiLabel" for="multi">Buy:&nbsp;</label>
+                <input class="multiBuy" min="1" id="multi" type="number" name="buyMulti" placeholder="Buy multiplier"
+                    [(ngModel)]="gameService.game.buyMulti">
+            </form>
+
+            <a class="nav-link nav-icon" href="javascript://" (click)="gameService.game.pause = !gameService.game.pause">
+                <clr-icon shape="play" *ngIf="gameService.game.pause; else pauseB"></clr-icon>
+                <ng-template #content #pauseB>
+                    <clr-icon shape="pause"></clr-icon>
+                </ng-template>
+            </a>
+
+            <a href="javascript://" class="nav-link nav-icon" routerLink="/options/save">
+                <clr-icon shape="cog"></clr-icon>
+            </a>
+
+        </div>
+    </clr-header>
+
+    <router-outlet></router-outlet>
+
+</clr-main-container>

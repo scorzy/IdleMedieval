@@ -1,0 +1,32 @@
+import { Decimal } from "decimal.js"
+
+export class Base {
+
+    quantity = new Decimal(0)
+    unlocked = false
+
+    constructor(
+        public id: string,
+        public name = "",
+        public description = ""
+    ) { }
+
+    getData() {
+        const data: any = {}
+        data.i = this.id
+        data.q = this.quantity
+        data.u = this.unlocked
+        return data
+    }
+    load(data: any) {
+        if (data.q) {
+            this.quantity = new Decimal(data.q)
+        }
+
+        if (data.u) {
+            this.unlocked = data.u
+        }
+
+
+    }
+}

@@ -1,0 +1,89 @@
+// Copyright (c) 2016 VMware, Inc. All Rights Reserved.
+// This software is released under MIT license.
+// The full license information can be found in LICENSE in the root directory of this project.
+.clr-icon {
+  &.clr-clarity-logo {
+      background-image: url(../images/clarity_logo.svg);
+      height: 36px;
+      width: 36px;
+      margin-right: 11px;
+  }
+}
+.nowrap {
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+// .main-container{
+//     min-height: 100vh;
+//     height:auto!important;
+// }
+:host /deep/ .content-area {
+    padding: 10px 24px 24px 24px !important;
+}
+
+.matTab {
+    width: 10%!important;
+    max-width: 110px!important;
+    margin-left: 5px!important;
+}
+
+.matLink {
+    width: 100%!important;
+    line-height: 24px!important;
+    border-style: solid!important;
+    border-width: 0px 1px 0px 0px!important;
+}
+
+.navMat {
+    padding-left: 5px!important;
+    height: 48px!important;
+}
+
+.perSecTab {
+    float: right;
+}
+
+.main-container .subnav {
+    flex: 0 0 48px;
+}
+
+.red {
+    color: #F52F22 !important;
+}
+
+.small {
+    font-size: 13px;
+}
+
+.actMinH {
+    min-height: 400px;
+}
+
+:host /deep/ clr-tree-node {
+    overflow-y: visible !important;
+}
+
+.multiBuy {
+    border: none;
+    background: none;
+    color: #fafafa;
+    padding: 0;
+    vertical-align: middle;
+    max-width: 2.5rem;
+}
+
+#multiLabel:before {
+    display: none
+}
+
+.branding {
+    min-width: auto !important;
+}
+
+:host /deep/ .nav-content {
+  padding-bottom:25px;
+}
+:host /deep/ .darkFix{
+  background: #1b2a32;
+}
