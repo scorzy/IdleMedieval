@@ -13,6 +13,7 @@ import { FormatPipe } from './format.pipe';
 import { UnitComponent } from './unit/unit.component';
 import { SliderModule } from 'primeng/components/slider/slider';
 import { ActionComponent } from './action/action.component';
+import { LabComponent } from './lab/lab.component';
 
 @NgModule({
     declarations: [
@@ -21,7 +22,8 @@ import { ActionComponent } from './action/action.component';
         HomeComponent,
         FormatPipe,
         UnitComponent,
-        ActionComponent
+        ActionComponent,
+        LabComponent
     ],
     imports: [
         BrowserAnimationsModule,

@@ -1,0 +1,14 @@
+<div class="content-area">
+    <h1>Here, scientists discuss things no one has seen before.</h1>
+    <div class="toggle-switch">
+        <input type="checkbox" id="toggle_1" [(ngModel)]="resDone">
+        <label for="toggle_1">Show research done</label>
+    </div>
+    <span>Science: {{gameService.game.science.quantity | format}} - {{gameService.game.science.totalPerSec
+        | format}} /s
+    </span>
+    <div class="card-columns card-columns-3">
+        <app-action [action]="res" *ngFor="let res of resList;trackBy:getRestId"></app-action>
+    </div>
+
+</div>

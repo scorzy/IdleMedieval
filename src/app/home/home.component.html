@@ -1,6 +1,6 @@
 <clr-vertical-nav [clrVerticalNavCollapsible]="false" [clr-nav-level]="2">
 
-    <clr-tree-node *ngFor="let list of gameService.game.mainLists; trackBy:getListId">
+    <clr-tree-node *ngFor="let list of gameService.game.mainListsUi; trackBy:getListId">
         <span class="font-weight-bold">
             <clr-icon class="alert-icon is-error" shape="exclamation-triangle" *ngIf="list.isEnding"></clr-icon>
             {{list.type}}

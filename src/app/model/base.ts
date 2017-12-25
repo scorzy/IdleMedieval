@@ -4,6 +4,7 @@ export class Base {
 
     quantity = new Decimal(0)
     unlocked = false
+    avabileThisWorld = true
 
     constructor(
         public id: string,

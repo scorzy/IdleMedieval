@@ -2,6 +2,7 @@ import { Base } from './base'
 import { Cost } from './cost'
 import { Unit } from 'app/model/unit';
 import { Decimal } from "decimal.js"
+import { Game } from 'app/model/game';
 
 export class Action extends Base {
 
@@ -16,10 +17,11 @@ export class Action extends Base {
 
     constructor(
         id: string,
+        name, description,
         public price = new Array<Cost>(),
         public unit: Unit = null
     ) {
-        super(id)
+        super(id, name, description)
         this.realPriceNow = price
     }
 
@@ -81,8 +83,8 @@ export class Buy extends Action {
     constructor(
         price = new Array<Cost>(),
         unit: Unit = null) {
-        super("buy", price, unit)
-        this.name = "Hire"
+        super("buy", "Hire", "Get more units", price, unit)
+        this.showHide = false
     }
     buy(number: Decimal = new Decimal(1)): boolean {
         if (super.buy(number)) {
@@ -93,3 +95,27 @@ export class Buy extends Action {
         return false
     }
 }
+
+export class Research extends Action {
+    constructor(
+        id: string,
+        name: string,
+        description: string,
+        cost: Cost[],
+        public toUnlock: Base[],
+        public game: Game) {
+        super(id, name, description, cost)
+        this.oneTime = true
+        this.showHide = false
+        game.resList.push(this)
+    }
+
+    buy() {
+        if (super.buy() && this.toUnlock) {
+            this.game.unlockUnits(this.toUnlock)
+        }
+        return true
+    }
+
+}
+

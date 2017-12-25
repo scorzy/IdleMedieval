@@ -1,6 +1,6 @@
 import { Production } from './production';
 import { Base } from './base'
-import { Action } from './action';
+import { Action, Buy } from './action';
 import { Cost } from './cost';
 import { Decimal } from 'decimal.js';
 
@@ -11,6 +11,7 @@ export class Unit extends Base {
     percentage = 100
     producs = new Array<Production>()
     madeBy = new Array<Production>()
+    buyAction: Buy
 
     producsActive = new Array<Production>()
 
@@ -42,7 +43,6 @@ export class Unit extends Base {
         }
     }
     isStopped() { return false }
-
     reloadProd() {
         this.producs.forEach(p => p.reload())
     }

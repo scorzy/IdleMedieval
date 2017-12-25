@@ -3,7 +3,7 @@ import { Production } from './production'
 import { Unit } from './unit';
 import { Base } from './base'
 import { Decimal } from 'decimal.js';
-import { Buy } from 'app/model/action';
+import { Buy, Research } from 'app/model/action';
 import { Cost } from 'app/model/cost';
 
 export class Game {
@@ -14,11 +14,14 @@ export class Game {
     productionTable = new Array<Production>()
     activeUnits = new Array<Unit>()
     mainLists = new Array<TypeList>()
+    mainListsUi = new Array<TypeList>()
     allUnit = new Array<Unit>()
 
     activeUnit: Unit
     buyMulti: number
     pause = false
+    isLab = false
+    resList = new Array<Research>()
 
     //#region Resources
     food: Unit
@@ -56,14 +59,16 @@ export class Game {
             u.producsActive = u.producs.filter(p => p.unlocked)
             u.madeBy = this.productionTable.filter(p => p.product === u)
         })
+        this.reloadLists()
     }
 
     update() {
-        this.activeUnits.filter(u => u.producsActive.find(prod =>
-            (prod.prodPerTick.lessThan(0) && prod.prodPerTick.abs().lessThan(prod.product.quantity)) || prod.prodPerTick.greaterThan(0)
-        )).forEach(u => {
-            u.producsActive.forEach(prod => prod.product.quantity = prod.product.quantity.plus(prod.prodPerTick))
-        })
+        if (!this.pause)
+            this.activeUnits.filter(u => u.producsActive.find(prod =>
+                (prod.prodPerTick.lessThan(0) && prod.prodPerTick.abs().lessThan(prod.product.quantity)) || prod.prodPerTick.greaterThan(0)
+            )).forEach(u => {
+                u.producsActive.forEach(prod => prod.product.quantity = prod.product.quantity.plus(prod.prodPerTick))
+            })
         this.reload()
     }
 
@@ -97,6 +102,29 @@ export class Game {
                 }
             })
         }
+    }
+    reloadLists() {
+        this.mainLists.forEach(l => l.reload())
+        this.mainListsUi = this.mainLists.filter(ml => ml.uiList.length > 0)
+    }
+
+    unlockUnits(toUnlock: Array<Base>) {
+        let ok = false
+        toUnlock.filter(u => u.avabileThisWorld).forEach(u => {
+            ok = ok || (!u.unlocked)
+            u.unlocked = true
+            if (u instanceof Unit && u.buyAction)
+                u.buyAction.unlocked = true
+        })
+        if (!ok)
+            return false
+        this.activeUnits = this.allUnit.filter(u => u.unlocked)
+        this.activeUnits.forEach(u2 => u2.producs.forEach(p =>
+            p.product.unlocked = p.product.avabileThisWorld))
+
+        this.reloadLists()
+
+        return ok
     }
 
     initResouces() {
