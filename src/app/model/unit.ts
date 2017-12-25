@@ -19,6 +19,8 @@ export class Unit extends Base {
     totalPerSec = new Decimal(0)
     totalProducers = new Decimal(0)
 
+    boost = new Decimal(1)
+
     constructor(
         id: string,
         name: string,

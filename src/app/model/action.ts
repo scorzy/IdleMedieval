@@ -77,6 +77,14 @@ export class Action extends Base {
     getId() {
         return (this.unit ? this.unit.id : "") + "_" + this.id
     }
+    getData() {
+        const data = super.getData()
+        data.own = this.owned
+    }
+    load(data: any) {
+        if (data.own)
+            this.owned = data.own
+    }
 }
 
 export class Buy extends Action {

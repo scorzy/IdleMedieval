@@ -24,12 +24,7 @@ export class Game {
     resList = new Array<Research>()
 
     //#region Resources
-    food: Unit
-    wood: Unit
-    stone: Unit
-    metal: Unit
-    science: Unit
-    mana: Unit
+    food: Unit; wood: Unit; stone: Unit; metal: Unit; gold: Unit; science: Unit; mana: Unit
     //#region
 
     //#region Workes
@@ -132,6 +127,7 @@ export class Game {
         this.wood = new Unit("wood", "Wood", "Wood descriptio")
         this.stone = new Unit("stone", "Stone", "Stone descriptio")
         this.metal = new Unit("metal", "Metal", "Metal descriptio")
+        this.gold = new Unit("gold", "Gold", "Gold descriptio")
         this.science = new Unit("science", "Science", "Science descriptio")
         this.mana = new Unit("mana", "Mana", "Mana descriptio")
 
