@@ -7,7 +7,6 @@ import { Decimal } from 'decimal.js';
 export class Unit extends Base {
 
     actions = new Array<Action>()
-    alwaysOn = false
     percentage = 100
     producs = new Array<Production>()
     madeBy = new Array<Production>()
@@ -18,6 +17,8 @@ export class Unit extends Base {
     showUp = false
     totalPerSec = new Decimal(0)
     totalProducers = new Decimal(0)
+    realtotalPerSec = new Decimal(0)
+    notEnought = false
 
     boost = new Decimal(1)
 
@@ -44,9 +45,10 @@ export class Unit extends Base {
             })
         }
     }
-    isStopped() { return false }
-    reloadProd() {
-        this.producs.forEach(p => p.reload())
+    isStopped() { return this.percentage < Number.EPSILON }
+    reloadProd() { this.producs.forEach(p => p.reload()) }
+    reloadBoost() {
+
     }
 
 }

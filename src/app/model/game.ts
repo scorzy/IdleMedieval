@@ -3,7 +3,7 @@ import { Production } from './production'
 import { Unit } from './unit';
 import { Base } from './base'
 import { Decimal } from 'decimal.js';
-import { Buy, Research } from 'app/model/action';
+import { Buy, Research, BuyAndUnlock } from 'app/model/action';
 import { Cost } from 'app/model/cost';
 
 export class Game {
@@ -22,16 +22,23 @@ export class Game {
     pause = false
     isLab = false
     resList = new Array<Research>()
+    labTab: Base
 
-    //#region Resources
+    // region Materials
     food: Unit; wood: Unit; stone: Unit; metal: Unit; gold: Unit; science: Unit; mana: Unit
-    //#region
+    // endregion
 
     //#region Workes
-    hunter: Unit
-    //#region
+    hunter: Unit; student: Unit
+    //#endregion
+
+    //#region Prestige
+    prestigeDone = new Decimal(0)
+
+    //#endregion
 
     constructor() {
+        this.labTab = new Base("labTab")
         this.initResouces()
         this.initWorkers()
         this.init()
@@ -58,12 +65,21 @@ export class Game {
     }
 
     update() {
-        if (!this.pause)
-            this.activeUnits.filter(u => u.producsActive.find(prod =>
-                (prod.prodPerTick.lessThan(0) && prod.prodPerTick.abs().lessThan(prod.product.quantity)) || prod.prodPerTick.greaterThan(0)
-            )).forEach(u => {
-                u.producsActive.forEach(prod => prod.product.quantity = prod.product.quantity.plus(prod.prodPerTick))
+        this.activeUnits.forEach(u => {
+            u.realtotalPerSec = new Decimal(0)
+            u.notEnought = u.producs.length > 0
+        })
+        this.activeUnits.filter(u => !u.producsActive.find(prod =>
+            prod.prodPerTick.lessThan(0) && prod.prodPerTick.abs().greaterThan(prod.product.quantity)
+        )).forEach(u => {
+            u.producsActive.forEach(prod => {
+                if (!this.pause)
+                    prod.product.quantity = prod.product.quantity.plus(prod.prodPerTick)
+                prod.product.realtotalPerSec = prod.product.realtotalPerSec.plus(prod.prodPerTick)
+                u.notEnought = false
             })
+        })
+        this.activeUnits.forEach(u => u.realtotalPerSec = u.realtotalPerSec.times(5))
         this.reload()
     }
 
@@ -108,15 +124,21 @@ export class Game {
         toUnlock.filter(u => u.avabileThisWorld).forEach(u => {
             ok = ok || (!u.unlocked)
             u.unlocked = true
+            u.isNew = true
             if (u instanceof Unit && u.buyAction)
                 u.buyAction.unlocked = true
+
         })
         if (!ok)
             return false
-        this.activeUnits = this.allUnit.filter(u => u.unlocked)
-        this.activeUnits.forEach(u2 => u2.producs.forEach(p =>
-            p.product.unlocked = p.product.avabileThisWorld))
 
+        this.allUnit.filter(u => u.unlocked).forEach(u2 => u2.producs.forEach(p => {
+            const isN = p.product.unlocked
+            p.product.unlocked = p.product.avabileThisWorld
+            p.product.isNew = (!isN && p.product.unlocked) || p.product.isNew
+
+        }))
+        this.activeUnits = this.allUnit.filter(u => u.unlocked)
         this.reloadLists()
 
         return ok
@@ -136,18 +158,25 @@ export class Game {
         this.mainLists.push(matList)
     }
     initWorkers() {
-        this.hunter = new Unit("hunter", "Hunter", "Hunter descriptio")
-        this.hunter = new Unit("hunter", "Hunter", "Hunter descriptio")
+        //    Student
+        this.student = new Unit("student", "Student", "Student description")
+        this.student.actions.push(new BuyAndUnlock([new Cost(this.food, new Decimal(10))], this.student,
+            [this.science, this.labTab], this))
+        this.productionTable.push(new Production(this.student, this.science, new Decimal(1)))
+        this.productionTable.push(new Production(this.student, this.food, new Decimal(-1)))
+
+        //    Hunter
+        this.hunter = new Unit("hunter", "Hunter", "Hunter description")
         this.hunter.unlocked = true
         this.hunter.quantity = new Decimal(1)
         this.productionTable.push(new Production(this.hunter, this.food, new Decimal(1)))
-
-        const buyHunter = new Buy([new Cost(this.food, new Decimal(10))], this.hunter)
+        const buyHunter = new BuyAndUnlock([new Cost(this.food, new Decimal(10))], this.hunter,
+            [this.student], this)
         buyHunter.unlocked = true
         this.hunter.actions.push(buyHunter)
 
         const workList = new TypeList("Workers")
-        workList.list.push(this.hunter)
+        workList.list.push(this.hunter, this.student)
         this.mainLists.push(workList)
     }
 

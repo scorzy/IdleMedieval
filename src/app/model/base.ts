@@ -5,6 +5,8 @@ export class Base {
     quantity = new Decimal(0)
     unlocked = false
     avabileThisWorld = true
+    alwaysOn = false
+    isNew = false
 
     constructor(
         public id: string,

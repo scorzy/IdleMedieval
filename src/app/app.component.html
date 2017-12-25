@@ -11,7 +11,8 @@
         </div>
         <div class="header-nav" [clr-nav-level]="1">
             <a class="nav-link" class="nav-link nav-text" routerLinkActive="active" routerLink="/home">Units</a>
-            <a class="nav-link" class="nav-link nav-text" routerLinkActive="active" routerLink="/lab">Lab</a>
+            <a class="nav-link" class="nav-link nav-text" routerLinkActive="active" routerLink="/lab" *ngIf="gameService.game.labTab.unlocked">
+                <span>Lab</span></a>
         </div>
         <div class="header-actions">
 

@@ -12,13 +12,15 @@
                 <clr-tree-node *ngFor="let g of list.uiList; trackBy:getUnitId">
                     <a [routerLink]="['/home/'+g.id]" class="clr-treenode-link" routerLinkActive="active">
                         <span class="resName">
-                            <clr-icon class="is-info" shape="angle-double" *ngIf="g.showUp"></clr-icon>
+                            <clr-icon class="is-info is-solid" shape="angle-double" *ngIf="g.showUp"></clr-icon>
                             <clr-icon class="is-warning is-solid" shape="pause" *ngIf="g.isStopped()" (click)="g.percentage = 100"></clr-icon>
+                            <clr-icon class="is-error" shape="warning-standard" *ngIf="g.notEnought"></clr-icon>
+                            <clr-icon class="is-info" shape="info-standard" *ngIf="g.isNew"></clr-icon>
 
                             {{g.name}}</span>
                         <span class="perSec">
-                            <span *ngIf="g.totalPerSec.abs().greaterThan(0.001)">
-                                {{g.totalPerSec | format:true}}/s
+                            <span *ngIf="g.realtotalPerSec.abs().greaterThan(0.001)">
+                                {{g.realtotalPerSec | format:true}}/s
                             </span>
                         </span>
                         <span>{{g.quantity | format:true}}</span>

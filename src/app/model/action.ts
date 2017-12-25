@@ -14,6 +14,7 @@ export class Action extends Base {
     show = true
     owned = false
     public up: Action
+    canBuy = false
 
     constructor(
         id: string,
@@ -43,6 +44,7 @@ export class Action extends Base {
     reloadMaxBuy() {
         if (!this.unlocked) {
             this.maxBuy = new Decimal(0)
+            this.canBuy = false
         } else {
             //    https://blog.kongregate.com/the-math-of-idle-games-part-i/
             let max = new Decimal(Number.POSITIVE_INFINITY)
@@ -54,8 +56,8 @@ export class Action extends Base {
                     ).plus(1).log(p.increment))
                 )
             }
-            // console.log(max.toString())
             this.maxBuy = max
+            this.canBuy = this.maxBuy.greaterThanOrEqualTo(1)
         }
     }
 
@@ -93,6 +95,7 @@ export class Buy extends Action {
         unit: Unit = null) {
         super("buy", "Hire", "Get more units", price, unit)
         this.showHide = false
+        this.unlocked = true
     }
     buy(number: Decimal = new Decimal(1)): boolean {
         if (super.buy(number)) {
@@ -127,3 +130,20 @@ export class Research extends Action {
 
 }
 
+export class BuyAndUnlock extends Buy {
+    constructor(
+        price = new Array<Cost>(),
+        unit: Unit = null,
+        public toUnlock: Array<Base>,
+        public game: Game) {
+        super(price, unit)
+        this.showHide = false
+    }
+    buy(number: Decimal = new Decimal(1)): boolean {
+        if (super.buy(number)) {
+            this.game.unlockUnits(this.toUnlock)
+            return true
+        }
+        return false
+    }
+}

@@ -2,7 +2,7 @@ import { Game } from './game';
 import { Unit } from './unit';
 
 export class TypeList {
-  isCollapsed = false
+  isCollapsed = true
   isEnding = false
   uiList = new Array<Unit>()
 

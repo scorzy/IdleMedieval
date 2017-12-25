@@ -1,4 +1,4 @@
-import {Base} from '../model/base';
+import { Base } from '../model/base';
 import { Component, OnInit, HostBinding } from '@angular/core';
 import { Unit } from 'app/model/unit';
 import { ServService } from 'app/serv.service';
@@ -32,7 +32,10 @@ export class UnitComponent implements OnInit {
                 this.mioId = "food"
             }
             this.gen = this.gameService.game.activeUnits.find(u => u.id === this.mioId)
+            if (!this.gen)
+                this.gen = this.gameService.game.hunter
             this.gameService.game.activeUnit = this.gen
+            this.gen.isNew = false
         });
         setTimeout(preventScroll, 0)
     }
