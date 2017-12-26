@@ -1,12 +1,15 @@
-import { Production } from './production';
+import { Production } from './production'
 import { Base } from './base'
-import { Action, Buy } from './action';
-import { Cost } from './cost';
-import { Decimal } from 'decimal.js';
+import { Action, Buy, BoostAction, HireAction } from './action';
+import { Cost } from './cost'
+import { Decimal } from 'decimal.js'
 
+import { Race } from './types'
+import { Game } from 'app/model/game';
 export class Unit extends Base {
 
     actions = new Array<Action>()
+    avActions = new Array<Action>()
     percentage = 100
     producs = new Array<Production>()
     madeBy = new Array<Production>()
@@ -21,11 +24,15 @@ export class Unit extends Base {
     notEnought = false
 
     boost = new Decimal(1)
+    boostAction: Action
+    hireAction: Action
+    race: Race = Race.human
 
     constructor(
         id: string,
         name: string,
-        description: string
+        description: string,
+        public game: Game
     ) {
         super(id, name, description)
     }
@@ -49,7 +56,23 @@ export class Unit extends Base {
     isStopped() { return this.percentage < Number.EPSILON }
     reloadProd() { this.producs.forEach(p => p.reload()) }
     reloadBoost() {
+        return this.game.team1.owned && this.buyAction ?
+            this.buyAction.quantity.times(0.005)
+                .times(this.boostAction ? this.boostAction.quantity.plus(1) : new Decimal(1))
+            : new Decimal(0)
+    }
 
+    createBuy(price: Array<Cost>) {
+        this.buyAction = new Buy(price, this)
+        this.actions.push(this.boostAction)
+    }
+    createBoost(price: Array<Cost>) {
+        this.boostAction = new BoostAction(price, this)
+        this.actions.push(this.boostAction)
+    }
+    createHire(price: Array<Cost>) {
+        this.hireAction = new HireAction(price, this)
+        this.actions.push(this.hireAction)
     }
 
 }

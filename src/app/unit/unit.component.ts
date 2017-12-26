@@ -3,6 +3,7 @@ import { Component, OnInit, HostBinding } from '@angular/core';
 import { Unit } from 'app/model/unit';
 import { ServService } from 'app/serv.service';
 import { ActivatedRoute, Router } from '@angular/router';
+import { OnDestroy } from '@angular/core/src/metadata/lifecycle_hooks';
 declare let preventScroll
 
 @Component({
@@ -10,7 +11,7 @@ declare let preventScroll
     templateUrl: './unit.component.html',
     styleUrls: ['./unit.component.scss']
 })
-export class UnitComponent implements OnInit {
+export class UnitComponent implements OnInit, OnDestroy {
 
     @HostBinding('class.content-area') className = 'content-area';
     mioId = "0";
@@ -25,7 +26,6 @@ export class UnitComponent implements OnInit {
     }
 
     ngOnInit() {
-
         this.paramsSub = this.activatedRoute.params.subscribe(params => {
             this.mioId = params['id'];
             if (this.mioId === undefined) {
@@ -38,6 +38,10 @@ export class UnitComponent implements OnInit {
             this.gen.isNew = false
         });
         setTimeout(preventScroll, 0)
+    }
+    ngOnDestroy() {
+        this.paramsSub.unsubscribe()
+        this.gameService.game.activeUnit = null
     }
     getUnitId(index, base: Base) {
         return base.id

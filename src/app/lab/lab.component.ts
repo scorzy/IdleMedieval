@@ -11,6 +11,7 @@ declare let preventScroll
 export class LabComponent implements OnInit, OnDestroy {
     @HostBinding('class.content-container') className = 'content-container'
     resDone = false
+    sub: any
     resList: Array<Research>
     constructor(
         public gameService: ServService
@@ -18,12 +19,15 @@ export class LabComponent implements OnInit, OnDestroy {
 
     ngOnInit() {
         this.gameService.game.isLab = true
+        this.sub = this.gameService.game.researchsObs.subscribe(a => this.onChange())
         this.onChange()
         preventScroll()
     }
 
     ngOnDestroy() {
         this.gameService.game.isLab = false
+        if (this.sub)
+            this.sub.unsubscribe()
     }
 
     getRestId(index, res: Research) {
@@ -32,8 +36,8 @@ export class LabComponent implements OnInit, OnDestroy {
 
     onChange() {
         if (this.resDone)
-            this.resList = this.gameService.game.resList.filter(r => r.owned)
+            this.resList = this.gameService.game.resList.filter(r => r.unlocked && r.owned)
         else
-            this.resList = this.gameService.game.resList.filter(r => !r.owned)
+            this.resList = this.gameService.game.resList.filter(r => r.unlocked && !r.owned)
     }
 }

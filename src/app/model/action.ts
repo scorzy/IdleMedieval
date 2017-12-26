@@ -13,7 +13,6 @@ export class Action extends Base {
     showHide = true
     show = true
     owned = false
-    public up: Action
     canBuy = false
 
     constructor(
@@ -40,9 +39,8 @@ export class Action extends Base {
             return constRet
         })
     }
-
     reloadMaxBuy() {
-        if (!this.unlocked) {
+        if (!this.unlocked || (this.oneTime && this.owned)) {
             this.maxBuy = new Decimal(0)
             this.canBuy = false
         } else {
@@ -58,9 +56,10 @@ export class Action extends Base {
             }
             this.maxBuy = max
             this.canBuy = this.maxBuy.greaterThanOrEqualTo(1)
+            if (this.oneTime && this.canBuy)
+                this.maxBuy = new Decimal(1)
         }
     }
-
     buy(number: Decimal = new Decimal(1)): boolean {
         if (number.lessThanOrEqualTo(0) || !this.unlocked) {
             return false
@@ -97,11 +96,14 @@ export class Buy extends Action {
         super("buy", "Hire", "Get more units", price, unit)
         this.showHide = false
         this.unlocked = true
+        this.unit.buyAction = this
     }
     buy(number: Decimal = new Decimal(1)): boolean {
         if (super.buy(number)) {
             this.quantity = this.quantity.plus(number)
-            this.unit.quantity = this.unit.quantity.plus(number)
+            this.unit.quantity = this.unit.quantity.plus(number.times(
+                this.unit.hireAction ? this.unit.hireAction.quantity.plus(1) : new Decimal(1)
+            ))
             return true
         }
         return false
@@ -123,8 +125,9 @@ export class Research extends Action {
     }
 
     buy() {
-        if (super.buy() && this.toUnlock) {
+        if (super.buy()) {
             this.game.unlockUnits(this.toUnlock)
+            this.game.researchsObs.emit(1)
             return true
         }
         return false
@@ -147,5 +150,25 @@ export class BuyAndUnlock extends Buy {
             return true
         }
         return false
+    }
+}
+
+export class BoostAction extends Action {
+    constructor(
+        price = new Array<Cost>(),
+        unit: Unit = null) {
+        super("boost", "Team Work", "Get a better teamWork bonus", price, unit)
+        this.showHide = true
+        this.unlocked = false
+    }
+}
+
+export class HireAction extends Action {
+    constructor(
+        price = new Array<Cost>(),
+        unit: Unit = null) {
+        super("hr", "Hire Bonus", "Get more unit for the same price", price, unit)
+        this.showHide = true
+        this.unlocked = false
     }
 }

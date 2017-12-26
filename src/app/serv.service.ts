@@ -30,7 +30,7 @@ export class ServService {
         }
     }
     load() {
-        // try {
+        try {
             if (typeof (Storage) !== 'undefined') {
                 const saveRaw = localStorage.getItem('save')
                 if (saveRaw) {
@@ -39,10 +39,9 @@ export class ServService {
                     this.game.load(save)
                 }
             }
-        // }
-        // catch (ex) {
-        //     console.log("load error: " + ex && ex.message ? ex.message : "unknow error")
-        // }
+        } catch (ex) {
+            console.log("load error: " + ex && ex.message ? ex.message : "unknow error")
+        }
     }
 
 }
