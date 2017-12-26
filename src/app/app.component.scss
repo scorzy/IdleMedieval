@@ -87,3 +87,8 @@
 :host /deep/ .darkFix{
   background: #1b2a32;
 }
+
+:host /deep/ .inv {
+    -webkit-filter: invert(1);
+    filter: invert(1);
+    }

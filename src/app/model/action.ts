@@ -1,8 +1,11 @@
+import { ServService } from 'app/serv.service'
 import { Base } from './base'
 import { Cost } from './cost'
-import { Unit } from 'app/model/unit';
+import { Unit } from 'app/model/unit'
 import { Decimal } from "decimal.js"
-import { Game } from 'app/model/game';
+import { Game } from 'app/model/game'
+import * as numberformat from 'swarm-numberformat'
+
 
 export class Action extends Base {
 
@@ -15,11 +18,18 @@ export class Action extends Base {
     owned = false
     canBuy = false
 
+    numberformat = numberformat
+    buyString1 = ""
+    buyStringHalf = ""
+    buyStringMax = ""
+    reqNum
+
     constructor(
         id: string,
         name, description,
         public price = new Array<Cost>(),
-        public unit: Unit = null
+        public unit: Unit = null,
+        public game: Game
     ) {
         super(id, name, description)
         this.realPriceNow = price
@@ -87,23 +97,35 @@ export class Action extends Base {
         if (data.own)
             this.owned = data.own
     }
+    reloadStrings() {
+        let reqNum = !this.game.buyMulti || this.game.buyMulti < 1 ? new Decimal(1) :
+            new Decimal(Decimal.max(Decimal.min(this.game.buyMulti, this.maxBuy), 1))
+
+        const buyMulti = this instanceof Buy && this.unit && this.unit.hireAction ?
+            this.unit.hireAction.quantity.plus(1) : new Decimal(1)
+
+        this.buyString1 = numberformat.formatShort(buyMulti.times(reqNum))
+        this.buyStringHalf = numberformat.formatShort(buyMulti.times(this.maxBuy.div(2).ceil()))
+        this.buyStringMax = numberformat.formatShort(buyMulti.times(this.maxBuy))
+    }
 }
 
 export class Buy extends Action {
     constructor(
         price = new Array<Cost>(),
-        unit: Unit = null) {
-        super("buy", "Hire", "Get more units", price, unit)
+        unit: Unit = null,
+        game: Game) {
+        super("buy", "Hire", "Get more units", price, unit, game)
         this.showHide = false
         this.unlocked = true
         this.unit.buyAction = this
     }
     buy(number: Decimal = new Decimal(1)): boolean {
         if (super.buy(number)) {
-            this.quantity = this.quantity.plus(number)
             this.unit.quantity = this.unit.quantity.plus(number.times(
                 this.unit.hireAction ? this.unit.hireAction.quantity.plus(1) : new Decimal(1)
             ))
+            this.unit.reloadBoost()
             return true
         }
         return false
@@ -117,8 +139,8 @@ export class Research extends Action {
         description: string,
         cost: Cost[],
         public toUnlock: Base[],
-        public game: Game) {
-        super(id, name, description, cost)
+        game: Game) {
+        super(id, name, description, cost, null, game)
         this.oneTime = true
         this.showHide = false
         game.resList.push(this)
@@ -140,8 +162,8 @@ export class BuyAndUnlock extends Buy {
         price = new Array<Cost>(),
         unit: Unit = null,
         public toUnlock: Array<Base>,
-        public game: Game) {
-        super(price, unit)
+        game: Game) {
+        super(price, unit, game)
         this.showHide = false
     }
     buy(number: Decimal = new Decimal(1)): boolean {
@@ -156,8 +178,9 @@ export class BuyAndUnlock extends Buy {
 export class BoostAction extends Action {
     constructor(
         price = new Array<Cost>(),
-        unit: Unit = null) {
-        super("boost", "Team Work", "Get a better teamWork bonus", price, unit)
+        unit: Unit = null,
+        game: Game) {
+        super("boost", "Team Work", "Get a better teamWork bonus", price, unit, game)
         this.showHide = true
         this.unlocked = false
     }
@@ -166,8 +189,9 @@ export class BoostAction extends Action {
 export class HireAction extends Action {
     constructor(
         price = new Array<Cost>(),
-        unit: Unit = null) {
-        super("hr", "Hire Bonus", "Get more unit for the same price", price, unit)
+        unit: Unit = null,
+        game: Game) {
+        super("hr", "Hire Bonus", "Get more unit for the same price", price, unit, game)
         this.showHide = true
         this.unlocked = false
     }

@@ -21,9 +21,6 @@ export class ActionComponent implements OnInit {
     buyString1 = ""
     buyStringHalf = ""
     buyStringMax = ""
-    priceString1 = ""
-    priceStringHalf = ""
-    priceStringMax = ""
 
     required = 1
 
@@ -37,6 +34,7 @@ export class ActionComponent implements OnInit {
 
     ngOnInit() {
        this.action.reloadMaxBuy()
+       this.action.reloadStrings()
     }
 
     getReqNum(): Decimal {
@@ -47,19 +45,6 @@ export class ActionComponent implements OnInit {
         return new Decimal(Math.max(Math.min(this.gameService.game.buyMulti, this.action.maxBuy.toNumber()), 1))
     }
 
-    getPriceString1() {
-        return numberformat.formatShort(new Decimal(this.action.up ? this.action.up.quantity.plus(1) : 1)
-            .times(this.getReqNum()))
-    }
-
-    getBuyStringHalf() {
-        return numberformat.formatShort(new Decimal(this.action.up ? this.action.up.quantity.plus(1) : 1)
-            .times(this.action.maxBuy.div(2).ceil()))
-    }
-    getBuyStringMax() {
-        return numberformat.formatShort(new Decimal(this.action.up ? this.action.up.quantity.plus(1) : 1)
-            .times(this.action.maxBuy))
-    }
 
     getPriceId(index, cost: Cost) {
         return cost.what.id

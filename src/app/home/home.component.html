@@ -12,6 +12,7 @@
                 <clr-tree-node *ngFor="let g of list.uiList; trackBy:getUnitId">
                     <a [routerLink]="['/home/'+g.id]" class="clr-treenode-link" routerLinkActive="active">
                         <span class="resName">
+                            <!-- <clr-icon [attr.shape]="g.id" size="24" class="inv" ></clr-icon> -->
                             <clr-icon class="is-info is-solid" shape="angle-double" *ngIf="g.showUp"></clr-icon>
                             <clr-icon class="is-warning is-solid" shape="pause" *ngIf="g.isStopped()" (click)="g.percentage = 100"></clr-icon>
                             <clr-icon class="is-error" shape="warning-standard" *ngIf="g.notEnought"></clr-icon>

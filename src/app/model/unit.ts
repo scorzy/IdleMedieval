@@ -16,6 +16,7 @@ export class Unit extends Base {
     buyAction: Buy
 
     producsActive = new Array<Production>()
+    madeByActive = new Array<Production>()
 
     showUp = false
     totalPerSec = new Decimal(0)
@@ -56,23 +57,27 @@ export class Unit extends Base {
     isStopped() { return this.percentage < Number.EPSILON }
     reloadProd() { this.producs.forEach(p => p.reload()) }
     reloadBoost() {
-        return this.game.team1.owned && this.buyAction ?
+        this.boost = this.game.team1.owned && this.buyAction ?
             this.buyAction.quantity.times(0.005)
                 .times(this.boostAction ? this.boostAction.quantity.plus(1) : new Decimal(1))
             : new Decimal(0)
     }
-
+    reloadProdTable() {
+        this.producsActive = this.producs.filter(p => p.unlocked && p.productor.unlocked)
+        this.madeByActive = this.madeBy.filter(p => p.unlocked && p.productor.unlocked)
+    }
+    // region utility
     createBuy(price: Array<Cost>) {
-        this.buyAction = new Buy(price, this)
-        this.actions.push(this.boostAction)
+        this.buyAction = new Buy(price, this, this.game)
+        this.actions.push(this.buyAction)
     }
     createBoost(price: Array<Cost>) {
-        this.boostAction = new BoostAction(price, this)
+        this.boostAction = new BoostAction(price, this, this.game)
         this.actions.push(this.boostAction)
     }
     createHire(price: Array<Cost>) {
-        this.hireAction = new HireAction(price, this)
+        this.hireAction = new HireAction(price, this, this.game)
         this.actions.push(this.hireAction)
     }
-
+    // endregion
 }

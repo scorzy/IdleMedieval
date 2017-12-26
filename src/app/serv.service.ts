@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Game } from './model/game';
 import * as LZString from 'lz-string';
+import { ClarityIcons } from '@clr/icons';
 
 @Injectable()
 export class ServService {
@@ -8,7 +9,6 @@ export class ServService {
     game: Game
     constructor() {
         this.game = new Game()
-
         setInterval(this.update.bind(this), 250)
     }
 

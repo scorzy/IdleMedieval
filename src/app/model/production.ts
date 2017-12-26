@@ -19,7 +19,7 @@ export class Production extends Base {
     }
 
     reload() {
-        this.prodPerSec = this.rateo.times(this.productor.percentage / 100).times(this.productor.boost)
+        this.prodPerSec = this.rateo.times(this.productor.percentage / 100).times(this.productor.boost.plus(1))
         this.prodPerTick = this.prodPerSec.div(5).times(this.productor.quantity)
     }
 }

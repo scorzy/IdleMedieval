@@ -12,7 +12,8 @@
         <div class="header-nav" [clr-nav-level]="1">
             <a class="nav-link" class="nav-link nav-text" routerLinkActive="active" routerLink="/home">Units</a>
             <a class="nav-link" class="nav-link nav-text" routerLinkActive="active" routerLink="/lab" *ngIf="gameService.game.labTab.unlocked">
-                <span>Lab</span></a>
+                <span>Lab</span>
+            </a>
         </div>
         <div class="header-actions">
 
@@ -28,10 +29,10 @@
                     <clr-icon shape="pause"></clr-icon>
                 </ng-template>
             </a>
-
             <a href="javascript://" class="nav-link nav-icon" routerLink="/save">
                 <clr-icon shape="cog"></clr-icon>
             </a>
+
 
         </div>
     </clr-header>

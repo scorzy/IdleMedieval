@@ -9,7 +9,7 @@ import { ServService } from 'app/serv.service';
 })
 export class AppComponent {
     constructor(private router: Router,
-        public gameService: ServService ) {
+        public gameService: ServService) {
     }
     getClass() {
         return "header-5"

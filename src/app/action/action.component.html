@@ -27,23 +27,40 @@
             <div class="btn-group w-100" role="group">
 
                 <button type="button" class="btn btn-secondary w-100" (click)="action.buy(getReqNum())" [disabled]="!action.maxBuy.greaterThanOrEqualTo(1)">
-                    <span *ngIf="!action.oneTime ; else get">{{getPriceString1()}}</span>
+                    <span *ngIf="!action.oneTime ; else get">{{action.buyString1}}</span>
                     <ng-template #get>
                         <span *ngIf="action.oneTime">Get</span>
                     </ng-template>
                 </button>
                 <button type="button " class="btn btn-secondary w-100" (click)="action.buy(action.maxBuy.div(2).ceil())"
                     *ngIf="action.maxBuy.greaterThanOrEqualTo(3)">
-                    <span>{{getBuyStringHalf()}}</span>
+                    <span>{{action.buyStringHalf}}</span>
                 </button>
                 <button type="button" class="btn btn-secondary w-100" (click)="action.buy(action.maxBuy)" *ngIf="action.maxBuy.greaterThanOrEqualTo(2)">
-                    <span>{{getBuyStringMax()}}</span>
+                    <span>{{action.buyStringMax}}</span>
                 </button>
             </div>
         </div>
     </div>
 
     <div *ngIf="!action.canBuy && !(action.oneTime && action.owned)">
+        <div class="progress-block">
+            <label>
+                <span *ngFor="let cost of action.realPriceNow; trackBy:getPriceId">
+                    {{cost.basePrice | format}}&nbsp;{{cost.what.name}}
+                    <br/>
+                </span>
+            </label>
+            <div class="progress-group">
+                <div *ngFor="let cost of action.realPriceNow; trackBy:getPriceId" class="progress-static" [ngClass]="{'success': cost.what.quantity.greaterThanOrEqualTo(cost.basePrice), 'danger': !cost.what.quantity.greaterThanOrEqualTo(cost.basePrice)}">
+                    <div class="progress-meter" max="100" attr.data-value="{{Math.min(cost.what.quantity.times(100).div(cost.basePrice).floor().toNumber(),100)}}">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- <div *ngIf="!action.canBuy && !(action.oneTime && action.owned)">
         <div class="progress-block" *ngFor="let cost of action.realPriceNow; trackBy:getPriceId">
             <label>{{cost.basePrice | format}}&nbsp;{{cost.what.name}}</label>
             <div class="progress-static" [ngClass]="{'success': cost.what.quantity.greaterThanOrEqualTo(cost.basePrice), 'danger': !cost.what.quantity.greaterThanOrEqualTo(cost.basePrice)}">
@@ -51,6 +68,6 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div> -->
 
 </div>

@@ -7,9 +7,14 @@
         <p>{{gen.description}}</p>
 
 
-        <div *ngIf="!gen.alwaysOn && gen.producsActive.length > 0">
-            <p-slider [(ngModel)]="gen.percentage" [step]="0.1" [min]="0" [max]="100" (onChange)="gen.reloadProd()"></p-slider>
-            <span>{{gen.percentage}} % operative</span>
+        <div *ngIf="gen.producsActive.length > 0">
+            <p *ngIf="gen.buyAction">You bought {{gen.buyAction.quantity | format}} times
+                <span *ngIf="gameService.game.team1.owned"> earning a bonus of +{{gen.boost.times(100) | format}}% production</span>
+            </p>
+            <div *ngIf="!gen.alwaysOn">
+                <p-slider [(ngModel)]="gen.percentage" [step]="0.1" [min]="0" [max]="100" (onChange)="gen.reloadProd()"></p-slider>
+                <span>{{gen.percentage}} % operative</span>
+            </div>
         </div>
 
         <div class="row">
@@ -36,7 +41,7 @@
                 </table>
             </div>
 
-            <div class="col-xs-12 col-md-12 col-lg-12 col-xl-12" *ngIf="gen.madeBy?.length > 0">
+            <div class="col-xs-12 col-md-12 col-lg-12 col-xl-12" *ngIf="gen.madeByActive?.length > 0">
                 <div>
                     <h5>
                         <span class="text-capitalize">{{gen.name}}</span> is made by:</h5>
@@ -58,9 +63,9 @@
                             </tr>
                         </tfoot>
                         <tbody>
-                            <tr *ngFor="let item of gen.madeBy; trackBy:getUnitId" [ngClass]="{'alert alert-warning no-alert': item.efficiency <0}">
+                            <tr *ngFor="let item of gen.madeByActive; trackBy:getUnitId" [ngClass]="{'alert alert-warning no-alert': item.efficiency <0}">
                                 <td class="text-capitalize">
-                                    <a [routerLink]="['/home/'+item.product.id]">{{item.productor.name}}</a>
+                                    <a [routerLink]="['/home/'+item.productor.id]">{{item.productor.name}}</a>
                                 </td>
                                 <td>{{item.productor.quantity | format}}</td>
                                 <td>{{item.prodPerSec.times(item.productor.quantity) | format}}</td>
