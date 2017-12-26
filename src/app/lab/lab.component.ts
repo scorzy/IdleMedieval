@@ -18,6 +18,7 @@ export class LabComponent implements OnInit, OnDestroy {
 
     ngOnInit() {
         this.gameService.game.isLab = true
+        this.onChange()
         preventScroll()
     }
 

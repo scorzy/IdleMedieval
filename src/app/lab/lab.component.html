@@ -1,7 +1,7 @@
 <div class="content-area">
     <h1>Here, scientists discuss things no one has seen before.</h1>
     <div class="toggle-switch">
-        <input type="checkbox" id="toggle_1" [(ngModel)]="resDone">
+        <input type="checkbox" id="toggle_1" [(ngModel)]="resDone" (change)="onChange()">
         <label for="toggle_1">Show research done</label>
     </div>
     <span>Science: {{gameService.game.science.quantity | format}} - {{gameService.game.science.totalPerSec

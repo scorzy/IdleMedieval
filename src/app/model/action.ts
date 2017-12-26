@@ -82,6 +82,7 @@ export class Action extends Base {
     getData() {
         const data = super.getData()
         data.own = this.owned
+        return data
     }
     load(data: any) {
         if (data.own)
@@ -124,8 +125,9 @@ export class Research extends Action {
     buy() {
         if (super.buy() && this.toUnlock) {
             this.game.unlockUnits(this.toUnlock)
+            return true
         }
-        return true
+        return false
     }
 
 }

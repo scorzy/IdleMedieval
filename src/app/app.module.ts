@@ -14,6 +14,7 @@ import { UnitComponent } from './unit/unit.component';
 import { SliderModule } from 'primeng/components/slider/slider';
 import { ActionComponent } from './action/action.component';
 import { LabComponent } from './lab/lab.component';
+import { SaveComponent } from './save/save.component';
 
 @NgModule({
     declarations: [
@@ -23,7 +24,8 @@ import { LabComponent } from './lab/lab.component';
         FormatPipe,
         UnitComponent,
         ActionComponent,
-        LabComponent
+        LabComponent,
+        SaveComponent
     ],
     imports: [
         BrowserAnimationsModule,

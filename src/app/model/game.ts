@@ -1,3 +1,4 @@
+import { Research } from './action';
 import { TypeList } from './typeList';
 import { Production } from './production'
 import { Unit } from './unit';
@@ -28,9 +29,13 @@ export class Game {
     food: Unit; wood: Unit; stone: Unit; metal: Unit; gold: Unit; science: Unit; mana: Unit
     // endregion
 
-    //#region Workes
+    // region Workes
     hunter: Unit; student: Unit
-    //#endregion
+    // endregion
+
+    // region Researchs
+    team1: Research
+    // endregion
 
     //#region Prestige
     prestigeDone = new Decimal(0)
@@ -39,8 +44,10 @@ export class Game {
 
     constructor() {
         this.labTab = new Base("labTab")
+        this.allMap.set("labTab", this.labTab)
         this.initResouces()
         this.initWorkers()
+        this.initResearchs()
         this.init()
     }
 
@@ -48,9 +55,8 @@ export class Game {
         this.food.unlocked = true
 
         this.mainLists.forEach(u => u.reload())
-        this.mainLists.forEach(m => m.list.forEach(u =>
-            this.allMap.set(u.id, u)
-        ))
+        this.mainLists.forEach(m => m.list.forEach(u => this.allMap.set(u.id, u)))
+        this.resList.forEach(r => this.allMap.set(r.id, r))
         this.allArr = Array.from(this.allMap.values())
         this.activeUnits.push(this.food, this.hunter)
         this.allUnit = this.allArr.filter(b => b instanceof Unit).map(b => <Unit>b)
@@ -63,7 +69,6 @@ export class Game {
         })
         this.reloadLists()
     }
-
     update() {
         this.activeUnits.forEach(u => {
             u.realtotalPerSec = new Decimal(0)
@@ -82,7 +87,6 @@ export class Game {
         this.activeUnits.forEach(u => u.realtotalPerSec = u.realtotalPerSec.times(5))
         this.reload()
     }
-
     reload() {
         this.activeUnits.forEach(u => u.reloadProd())
         this.activeUnits.forEach(u => {
@@ -95,15 +99,14 @@ export class Game {
             u.actions.forEach(a => a.reloadMaxBuy())
         })
     }
-
     getSave(): any {
         const data: any = {}
         data.un = this.allArr.map(u => u.getData())
-
+        return data
     }
     load(data: any) {
         if (data.un) {
-            data.un.array.forEach(e => {
+            data.un.forEach(e => {
                 let unit: Base = null
                 if (e.i) {
                     unit = this.allMap.get(e.i)
@@ -113,12 +116,14 @@ export class Game {
                 }
             })
         }
+        this.activeUnits = this.allUnit.filter(u => u.unlocked)
+        this.reload()
+        this.reloadLists()
     }
     reloadLists() {
         this.mainLists.forEach(l => l.reload())
         this.mainListsUi = this.mainLists.filter(ml => ml.uiList.length > 0)
     }
-
     unlockUnits(toUnlock: Array<Base>) {
         let ok = false
         toUnlock.filter(u => u.avabileThisWorld).forEach(u => {
@@ -178,6 +183,9 @@ export class Game {
         const workList = new TypeList("Workers")
         workList.list.push(this.hunter, this.student)
         this.mainLists.push(workList)
+    }
+    initResearchs() {
+        this.team1 = new Research("te1", "Team Work", "Team Work", [new Cost(this.science, new Decimal(10))], null, this)
     }
 
 }

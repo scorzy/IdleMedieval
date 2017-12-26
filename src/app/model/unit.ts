@@ -33,11 +33,12 @@ export class Unit extends Base {
     getData(): any {
         const data = super.getData()
         data.a = this.actions.map(act => act.getData())
+        return data
     }
     load(data: any) {
         super.load(data)
         if (data.a) {
-            data.a.array.forEach(element => {
+            data.a.forEach(element => {
                 const action = this.actions.find(act => act.id = element.id)
                 if (action) {
                     action.load(element)
