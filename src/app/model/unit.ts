@@ -32,6 +32,7 @@ export class Unit extends Base {
 
     bonus = new Array<Bonus>()
     totBonus = new Decimal(1)
+    worldBonus = new Decimal(0)
 
     constructor(
         id: string,
@@ -60,6 +61,8 @@ export class Unit extends Base {
         this.totBonus = new Decimal(0)
         this.bonus.filter(b => b.isAactive()).forEach(bo =>
             this.totBonus = this.totBonus.plus(bo.getBoost()))
+
+        this.totBonus = this.totBonus.plus(this.worldBonus)
 
         this.producs.forEach(p => p.reload())
     }

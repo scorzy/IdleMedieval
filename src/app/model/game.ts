@@ -10,6 +10,7 @@ import { EventEmitter } from '@angular/core';
 import { Type } from '@angular/core/src/type';
 import { Race } from 'app/model/types';
 import { Bonus } from 'app/model/bonus';
+import { Village } from 'app/model/village';
 
 export class Game {
     researchsObs: EventEmitter<number> = new EventEmitter<number>()
@@ -57,6 +58,8 @@ export class Game {
     expHire = new Decimal(6)
     // endregion
 
+    village: Village
+
     constructor() {
         this.labTab = new Base("labTab", "", "", this)
         this.honor = new Base("honor", "Honor", "honor", this)
@@ -66,6 +69,9 @@ export class Game {
 
         this.init()
         this.allUnit.forEach(u => u.reloadProdTable())
+
+        this.village = new Village("ciao", [Race.human], null)
+
     }
 
     init() {
@@ -119,6 +125,7 @@ export class Game {
     getSave(): any {
         const data: any = {}
         data.un = this.allArr.map(u => u.getData())
+        data.v = this.village.getSave()
         return data
     }
     load(data: any) {
@@ -134,6 +141,8 @@ export class Game {
                 }
             })
         }
+        if (data.v)
+            this.village.loadData(data.v)
         this.reloadAll()
     }
     reloadAll() {

@@ -1,3 +1,4 @@
+import { VillageComponent } from './village/village.component';
 import { SaveComponent } from './save/save.component';
 import { ModuleWithProviders } from '@angular/core/src/metadata/ng_module'
 import { Routes, RouterModule } from '@angular/router'
@@ -16,6 +17,7 @@ export const ROUTES: Routes = [
         ]
     },
     { path: 'lab', component: LabComponent },
+    { path: 'vil', component: VillageComponent },
     { path: 'save', component: SaveComponent },
     { path: 'about', component: AboutComponent }
 ];

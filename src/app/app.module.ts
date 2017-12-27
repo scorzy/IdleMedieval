@@ -17,6 +17,7 @@ import { LabComponent } from './lab/lab.component';
 import { SaveComponent } from './save/save.component';
 import { SpellListComponent } from './spell-list/spell-list.component';
 import { SpellComponent } from './spell/spell.component';
+import { VillageComponent } from './village/village.component';
 
 @NgModule({
     declarations: [
@@ -29,7 +30,8 @@ import { SpellComponent } from './spell/spell.component';
         LabComponent,
         SaveComponent,
         SpellListComponent,
-        SpellComponent
+        SpellComponent,
+        VillageComponent
     ],
     imports: [
         BrowserAnimationsModule,

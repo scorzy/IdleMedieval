@@ -1,5 +1,5 @@
 import { Decimal } from "decimal.js"
-import { Game } from "app/model/game";
+import { Game } from "app/model/game"
 
 export class Base {
 
