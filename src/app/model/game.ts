@@ -26,7 +26,7 @@ export class Game {
     unlockedActiveBoost = new Array<Bonus>()
 
     activeUnit: Unit
-    buyMulti: number
+    buyMulti = 1
     pause = false
     isLab = false
     resList = new Array<Research>()
