@@ -28,7 +28,6 @@ export class Unit extends Base {
     boost = new Decimal(1)
     boostAction: Action
     hireAction: Action
-    race: Race = Race.human
 
     bonus = new Array<Bonus>()
     totBonus = new Decimal(1)

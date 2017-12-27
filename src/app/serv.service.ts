@@ -17,7 +17,7 @@ export class ServService {
     }
 
     save() {
-        try {
+        // try {
             if (typeof (Storage) !== 'undefined') {
                 const data = this.game.getSave()
                 const raw = LZString.compressToBase64(JSON.stringify(data))
@@ -25,12 +25,12 @@ export class ServService {
             } else {
                 console.log("no local storage")
             }
-        } catch (ex) {
-            console.log("save error: " + ex && ex.message ? ex.message : "unknow error")
-        }
+        // } catch (ex) {
+        //     console.log("save error: " + ex && ex.message ? ex.message : "unknow error")
+        // }
     }
     load() {
-        try {
+        // try {
             if (typeof (Storage) !== 'undefined') {
                 const saveRaw = localStorage.getItem('save')
                 if (saveRaw) {
@@ -39,9 +39,9 @@ export class ServService {
                     this.game.load(save)
                 }
             }
-        } catch (ex) {
-            console.log("load error: " + ex && ex.message ? ex.message : "unknow error")
-        }
+        // } catch (ex) {
+        //     console.log("load error: " + ex && ex.message ? ex.message : "unknow error")
+        // }
     }
 
 }

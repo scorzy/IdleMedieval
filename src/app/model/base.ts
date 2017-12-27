@@ -1,5 +1,6 @@
 import { Decimal } from "decimal.js"
 import { Game } from "app/model/game"
+import { Race } from "app/model/types";
 
 export class Base {
 
@@ -8,14 +9,17 @@ export class Base {
     avabileThisWorld = true
     alwaysOn = false
     isNew = false
+    race = Race.human
 
     constructor(
         public id: string,
         public name = "",
         public description = "",
-        public game: Game
+        public game: Game,
+        noSet = false
     ) {
-        this.game.allMap.set(this.id, this)
+        if (!noSet)
+            this.game.allMap.set(this.id, this)
     }
 
     getData() {

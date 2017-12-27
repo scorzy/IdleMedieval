@@ -5,7 +5,7 @@ import { Unit } from 'app/model/unit'
 import { Decimal } from "decimal.js"
 import { Game } from 'app/model/game'
 import * as numberformat from 'swarm-numberformat'
-import { Bonus } from 'app/model/bonus';
+import { Bonus } from 'app/model/bonus'
 
 export class Action extends Base {
 
@@ -29,10 +29,11 @@ export class Action extends Base {
         name, description,
         public price = new Array<Cost>(),
         public unit: Unit = null,
-        game: Game
+        game: Game,
+        noSet = false
     ) {
         super((unit ? unit.id + "_" : "") + id,
-            name, description, game)
+            name, description, game, noSet)
         this.realPriceNow = price
     }
 
@@ -227,5 +228,38 @@ export class ActiveBonus extends Action {
             return true
         }
         return false
+    }
+}
+
+export class KingOrder extends Action {
+    constructor(
+        id: string,
+        price: Array<Cost>,
+        game: Game
+    ) {
+        super("ko" + id, "King Order", "king Order", price, game.honor, game, false)
+    }
+    buy(number: Decimal = new Decimal(1)): boolean {
+        if (super.buy(number)) {
+            this.unit.quantity = this.unit.quantity.plus(number)
+            return true
+        }
+        return false
+    }
+    getData() {
+        const data = super.getData()
+        if (this.price)
+            data.costs = this.price.map(p => [p.what.id, p.basePrice, p.increment])
+        return data
+    }
+    load(data: any) {
+        super.load(data)
+        this.price = new Array<Cost>()
+        if (data.costs)
+            data.costs.foreach(co => {
+                const what = this.game.allUnit.find(u => u.id === co[0])
+                if (what)
+                    this.price.push(new Cost(what, new Decimal(co[1]), new Decimal(co[2])))
+            })
     }
 }

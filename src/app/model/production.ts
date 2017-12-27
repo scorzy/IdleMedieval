@@ -17,10 +17,10 @@ export class Production extends Base {
         public rateo: Decimal,
         game: Game,
         _id: string = "",
-        _unlocked = true
+        public defUnlocked = true
     ) {
         super(productor.id + "/" + product.id + "/" + _id, "", "", game)
-        this.unlocked = _unlocked
+        this.unlocked = defUnlocked
         this.productor.producs.push(this)
         this.product.madeBy.push(this)
     }

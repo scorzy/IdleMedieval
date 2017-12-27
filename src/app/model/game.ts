@@ -41,11 +41,11 @@ export class Game {
     hunter: Unit; student: Unit; lumberjack: Unit; miner: Unit; quarrymen: Unit; mage: Unit
     // endregion
     // region Researchs
-    team1: Research; team2: Research; hire: Research
+    team1: Research; team2: Research; hire: Research; woodRes: Research
     // endregion
-    //#region Prestige
+    // region Prestige
     prestigeDone = new Decimal(0)
-    honor: Base
+    honor: Unit
     //#endregion
     // region costs
     buyExp = new Decimal(1.1)
@@ -62,7 +62,7 @@ export class Game {
 
     constructor() {
         this.labTab = new Base("labTab", "", "", this)
-        this.honor = new Base("honor", "Honor", "honor", this)
+        this.honor = new Unit("honor", "Honor", "honor", this)
         this.initResouces()
         this.initWorkers()
         this.initResearchs()
@@ -70,14 +70,17 @@ export class Game {
         this.init()
         this.allUnit.forEach(u => u.reloadProdTable())
 
-        this.village = new Village("ciao", [Race.human], null)
+        this.village = new Village("ciao", [Race.human])
 
+        this.worldReset()
+        this.initRace(Race.human)
+        this.reloadAll()
     }
 
     init() {
         this.food.unlocked = true
         this.mainLists.forEach(u => u.reload())
-        this.activeUnits.push(this.food, this.hunter)
+        this.activeUnits = this.allUnit.filter(u => u.unlocked)
         this.allArr = Array.from(this.allMap.values())
         this.productionTable.forEach(p => p.reload())
         this.reloadLists()
@@ -129,6 +132,7 @@ export class Game {
         return data
     }
     load(data: any) {
+        this.worldReset()
         if (data.un) {
             console.log(data)
             data.un.forEach(e => {
@@ -142,7 +146,7 @@ export class Game {
             })
         }
         if (data.v)
-            this.village.loadData(data.v)
+            this.village.loadData(data.v, this)
         this.reloadAll()
     }
     reloadAll() {
@@ -195,6 +199,38 @@ export class Game {
         this.reloadLists()
 
         return ok
+    }
+
+    worldReset() {
+        this.allArr.forEach(b => {
+            b.isNew = false
+            b.avabileThisWorld = false
+            b.quantity = new Decimal(0)
+            b.unlocked = false
+        })
+        this.allUnit.forEach(u => {
+            u.percentage = 100
+            u.showUp = false
+            u.totalPerSec = new Decimal(0)
+            u.totalProducers = new Decimal(0)
+            u.realtotalPerSec = new Decimal(0)
+            u.notEnought = false
+            u.actions.forEach(a => a.owned = false)
+        })
+        this.productionTable.forEach(p => p.unlocked = p.defUnlocked)
+        this.matList.list.forEach(mat => { mat.avabileThisWorld = true })
+        this.resList.forEach(res => { res.owned = false })
+        this.bonuList.forEach(bon => { bon.tickLeft = new Decimal(0) })
+        this.labTab.avabileThisWorld = true
+    }
+    initRace(race: Race) {
+        this.allArr.filter(u => u.race === race).forEach(ra => ra.avabileThisWorld = true)
+        switch (race) {
+            case Race.human:
+                this.unlockUnits([this.team1, this.woodRes, this.hunter])
+                this.hunter.quantity = new Decimal(1)
+                break
+        }
     }
 
     initResouces() {
@@ -287,7 +323,6 @@ export class Game {
 
         this.team1 = new Research("te1", "Team Work", "Team Work",
             [new Cost(this.science, new Decimal(10))], [this.team2], this)
-        this.team1.unlocked = true
         // endregion
 
         const hunterBonus = new Bonus("bonBH", "Smart Hunters",
@@ -307,9 +342,8 @@ export class Game {
         const stoneRes = new Research("stoRe", "Quarry", "Quarry",
             [new Cost(this.science, new Decimal(10))], [this.quarrymen, this.stone, metalRes], this)
 
-        const woodRes = new Research("woRe", "Woodcutting", "Woodcutting",
+        this.woodRes = new Research("woRe", "Woodcutting", "Woodcutting",
             [new Cost(this.science, new Decimal(10))], [this.lumberjack, this.wood, stoneRes], this)
-        woodRes.unlocked = true
     }
 
 }
