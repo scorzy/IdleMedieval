@@ -33,6 +33,7 @@ export class Game {
 
     // region Materials
     food: Unit; wood: Unit; stone: Unit; metal: Unit; gold: Unit; science: Unit; mana: Unit
+    matList: TypeList
     // endregion
     // region Workes
     hunter: Unit; student: Unit; lumberjack: Unit; miner: Unit; quarrymen: Unit; mage: Unit
@@ -193,9 +194,9 @@ export class Game {
         this.science = new Unit("science", "Science", "Science descriptio", this)
         this.mana = new Unit("mana", "Mana", "Mana descriptio", this)
 
-        const matList = new TypeList("Materials")
-        matList.list.push(this.food, this.wood, this.stone, this.metal, this.science, this.mana)
-        this.mainLists.push(matList)
+        this.matList = new TypeList("Materials")
+        this.matList.list.push(this.food, this.wood, this.stone, this.metal, this.science, this.mana)
+        this.mainLists.push(this.matList)
     }
     initWorkers() {
         //    Mage

@@ -36,6 +36,28 @@
 
         </div>
     </clr-header>
+    <!-- Top Material Nav -->
+    <nav class="subnav">
+        <ul class="nav navMat">
+            <li class="nav-item" class="matTab" *ngFor="let g of gameService.game.matList.uiList">
+                <a [routerLink]="['/home/'+g.id]" class="nav-link matLink" routerLinkActive="active">
+
+                    <span style="display:block;">
+                        <clr-icon class="is-info" shape="angle-double" *ngIf="g.showUp"></clr-icon>
+                        <span class="first">{{g.name}}</span>
+                    </span>
+
+                    <span class="perSecTab small">
+                        <span *ngIf="g.totalPerSec.abs().greaterThan(0.001)">
+                            {{g.totalPerSec | format}}/s
+                        </span>
+                    </span>
+                    <span class="small">{{g.quantity | format}}</span>
+
+                </a>
+            </li>
+        </ul>
+    </nav>
 
     <router-outlet></router-outlet>
 
