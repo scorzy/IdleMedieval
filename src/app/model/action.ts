@@ -31,7 +31,8 @@ export class Action extends Base {
         public unit: Unit = null,
         game: Game
     ) {
-        super(id, name, description, game)
+        super((unit ? unit.id + "_" : "") + id,
+            name, description, game)
         this.realPriceNow = price
     }
 
@@ -86,7 +87,7 @@ export class Action extends Base {
         return false
     }
     getId() {
-        return (this.unit ? this.unit.id : "") + "_" + this.id
+        return (this.unit ? this.unit.id + "_" : "") + this.id
     }
     getData() {
         const data = super.getData()

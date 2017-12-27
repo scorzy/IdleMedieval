@@ -42,6 +42,7 @@ export class Game {
     // endregion
     //#region Prestige
     prestigeDone = new Decimal(0)
+    honor: Base
     //#endregion
     // region costs
     buyExp = new Decimal(1.1)
@@ -56,6 +57,7 @@ export class Game {
 
     constructor() {
         this.labTab = new Base("labTab", "", "", this)
+        this.honor = new Base("honor", "Honor", "honor", this)
         this.initResouces()
         this.initWorkers()
         this.initResearchs()
@@ -118,17 +120,22 @@ export class Game {
     }
     load(data: any) {
         if (data.un) {
+            console.log(data)
             data.un.forEach(e => {
-                let unit: Base = null
+                let base: Base = null
                 if (e.i) {
-                    unit = this.allMap.get(e.i)
-                    if (unit) {
-                        unit.load(e)
+                    base = this.allMap.get(e.i)
+                    if (base) {
+                        base.load(e)
                     }
                 }
             })
         }
+        this.reloadAll()
+    }
+    reloadAll() {
         this.activeUnits = this.allUnit.filter(u => u.unlocked)
+        this.allUnit.forEach(u => u.avActions = u.actions.filter(a => a.unlocked))
         this.reload()
         this.reloadLists()
         this.allUnit.forEach(u => {

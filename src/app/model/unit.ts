@@ -41,19 +41,14 @@ export class Unit extends Base {
 
     getData(): any {
         const data = super.getData()
-        data.a = this.actions.map(act => act.getData())
+        data.perc = this.percentage
+        // data.a = this.actions.map(act => act.getData())
         return data
     }
     load(data: any) {
         super.load(data)
-        if (data.a) {
-            data.a.forEach(element => {
-                const action = this.actions.find(act => act.id = element.id)
-                if (action) {
-                    action.load(element)
-                }
-            })
-        }
+        if (data.perc)
+            this.percentage = data.perc
     }
     isStopped() { return this.percentage < Number.EPSILON }
     reloadProd() { this.producs.forEach(p => p.reload()) }
