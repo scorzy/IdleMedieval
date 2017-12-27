@@ -4,6 +4,7 @@ import { Cost } from 'app/model/cost';
 import * as numberformat from 'swarm-numberformat';
 import { ServService } from 'app/serv.service';
 import { Decimal } from 'decimal.js';
+import { Bonus } from '../model/bonus';
 
 @Component({
     selector: 'app-action',
@@ -14,22 +15,11 @@ export class ActionComponent implements OnInit {
     @HostBinding('class.card') card = 'card';
 
     @Input() action: Action
-    maxBuy = new Decimal(0)
-    prices1 = new Array<Cost>()
-    pricesHalf = new Array<Cost>()
-    pricesMax = new Array<Cost>()
-    buyString1 = ""
-    buyStringHalf = ""
-    buyStringMax = ""
-
     required = 1
-
     numberformat = numberformat
-
     Math = Math
 
     constructor(public gameService: ServService) {
-
     }
 
     ngOnInit() {
@@ -44,7 +34,6 @@ export class ActionComponent implements OnInit {
 
         return new Decimal(Math.max(Math.min(this.gameService.game.buyMulti, this.action.maxBuy.toNumber()), 1))
     }
-
 
     getPriceId(index, cost: Cost) {
         return cost.what.id

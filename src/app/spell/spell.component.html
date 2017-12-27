@@ -1,0 +1,19 @@
+<div class="card" [ngClass]="{'clickable':bonus.activeAction.canBuy}" (click)="buy()">
+    <div class="card-block">
+        <div class="progress top">
+            <progress value={{bonus.tickLeft.toNumber()}} max={{bonus.activeAction.tick.toNumber()}}></progress>
+        </div>
+        <div class="card-title">
+            {{bonus.name}}
+        </div>
+        <div class="card-text">
+            {{bonus.activeAction.realPriceNow[0].basePrice | format}} - {{bonus.description}}
+        </div>
+    </div>
+
+    <div class="card-footer">
+        <div class="progress">
+            <progress max="100" attr.value="{{Math.min(bonus.activeAction.realPriceNow[0].what.quantity.times(100).div(bonus.activeAction.realPriceNow[0].basePrice).floor().toNumber(),100)}}"></progress>
+        </div>
+    </div>
+</div>

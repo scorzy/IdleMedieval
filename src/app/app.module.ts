@@ -15,6 +15,8 @@ import { SliderModule } from 'primeng/components/slider/slider';
 import { ActionComponent } from './action/action.component';
 import { LabComponent } from './lab/lab.component';
 import { SaveComponent } from './save/save.component';
+import { SpellListComponent } from './spell-list/spell-list.component';
+import { SpellComponent } from './spell/spell.component';
 
 @NgModule({
     declarations: [
@@ -25,7 +27,9 @@ import { SaveComponent } from './save/save.component';
         UnitComponent,
         ActionComponent,
         LabComponent,
-        SaveComponent
+        SaveComponent,
+        SpellListComponent,
+        SpellComponent
     ],
     imports: [
         BrowserAnimationsModule,

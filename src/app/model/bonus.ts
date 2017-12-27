@@ -1,10 +1,13 @@
+import { Cost } from './cost';
 import { Base } from './base'
 import { Game } from 'app/model/game'
 import { Decimal } from 'decimal.js'
+import { ActiveBonus } from 'app/model/action';
 
 
 export class Bonus extends Base {
     tickLeft = new Decimal(0)
+    activeAction: ActiveBonus
     constructor(
         id: string,
         name: string,
@@ -39,5 +42,9 @@ export class Bonus extends Base {
     }
     isAactive(): boolean {
         return this.unlocked && (this.alwaysOn || this.tickLeft.greaterThan(0))
+    }
+
+    createActiveAct(mana: Decimal, tick: Decimal) {
+        this.activeAction = new ActiveBonus([new Cost(this.game.mana, mana, new Decimal(1))], this, this.game, tick)
     }
 }

@@ -1,0 +1,5 @@
+<div class="content">
+    <div *ngFor="let bon of gameService.game.unlockedActiveBoost">
+        <app-spell [bonus]="bon"></app-spell>
+    </div>
+</div>

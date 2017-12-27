@@ -6,6 +6,7 @@ import { Decimal } from 'decimal.js'
 
 import { Race } from './types'
 import { Game } from 'app/model/game';
+import { Bonus } from 'app/model/bonus';
 export class Unit extends Base {
 
     actions = new Array<Action>()
@@ -29,6 +30,9 @@ export class Unit extends Base {
     hireAction: Action
     race: Race = Race.human
 
+    bonus = new Array<Bonus>()
+    totBonus = new Decimal(1)
+
     constructor(
         id: string,
         name: string,
@@ -51,7 +55,14 @@ export class Unit extends Base {
             this.percentage = data.perc
     }
     isStopped() { return this.percentage < Number.EPSILON }
-    reloadProd() { this.producs.forEach(p => p.reload()) }
+    reloadProd() {
+        // reload total bonus
+        this.totBonus = new Decimal(0)
+        this.bonus.filter(b => b.isAactive()).forEach(bo =>
+            this.totBonus = this.totBonus.plus(bo.getBoost()))
+
+        this.producs.forEach(p => p.reload())
+    }
     reloadBoost() {
         this.boost = this.game.team1.owned && this.buyAction ?
             this.buyAction.quantity.times(0.005)

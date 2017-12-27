@@ -1,4 +1,4 @@
-import { BoostAction, HireAction, Action } from './action';
+import { BoostAction, HireAction, Action, ActiveBonus } from './action';
 import { TypeList } from './typeList';
 import { Production } from './production'
 import { Unit } from './unit';
@@ -23,6 +23,7 @@ export class Game {
     mainListsUi = new Array<TypeList>()
     allUnit = new Array<Unit>()
     bonuList = new Array<Bonus>()
+    unlockedActiveBoost = new Array<Bonus>()
 
     activeUnit: Unit
     buyMulti: number
@@ -109,6 +110,7 @@ export class Game {
             u.showUp = u.boostAction && u.boostAction.maxBuy.greaterThanOrEqualTo(1) ||
                 u.hireAction && u.hireAction.maxBuy.greaterThanOrEqualTo(1)
         })
+        this.unlockedActiveBoost.forEach(b => b.activeAction.reloadMaxBuy())
         if (this.isLab)
             this.resList.filter(r => r.unlocked).forEach(r => r.reloadMaxBuy())
         if (this.activeUnit)
@@ -147,6 +149,7 @@ export class Game {
     reloadLists() {
         this.mainLists.forEach(l => l.reload())
         this.mainListsUi = this.mainLists.filter(ml => ml.uiList.length > 0)
+        this.unlockedActiveBoost = this.bonuList.filter(b => b.unlocked && !b.alwaysOn)
     }
     unlockUnits(toUnlock: Array<Base>) {
         if (!toUnlock)
@@ -197,6 +200,11 @@ export class Game {
         this.matList = new TypeList("Materials")
         this.matList.list.push(this.food, this.wood, this.stone, this.metal, this.science, this.mana)
         this.mainLists.push(this.matList)
+
+        // const boostFood = new Bonus("bFoo", "Boost Food", "aaa", this, new Decimal(2), null, false)
+        // boostFood.createActiveAct(new Decimal(15), new Decimal(100))
+        // boostFood.unlocked = true
+        // this.food.bonus.push(boostFood)
     }
     initWorkers() {
         //    Mage
@@ -273,8 +281,10 @@ export class Game {
         this.team1.unlocked = true
         // endregion
 
-        const hunterBonus = new Bonus("bonBH", "better hunting", "better hunting", this, new Decimal(1), null, true)
-        const betterHunting = new Research("betterHunting", "betterHunting", "betterHunting",
+        const hunterBonus = new Bonus("bonBH", "Smart Hunters",
+            "Make hunter more usefull; +100% food from hunters", this, new Decimal(1), null, true)
+        const betterHunting = new Research("betterHunting", "Smart Hunters",
+            "Make hunter more usefull; +100% food from hunters",
             [new Cost(this.science, new Decimal(1))], [hunterBonus], this)
         this.hunter.producs[0].bonus.push(hunterBonus)
         betterHunting.unlocked = true

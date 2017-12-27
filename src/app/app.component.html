@@ -10,9 +10,11 @@
             </a>
         </div>
         <div class="header-nav" [clr-nav-level]="1">
-            <a class="nav-link" class="nav-link nav-text" routerLinkActive="active" routerLink="/home">Units</a>
+            <a class="nav-link" class="nav-link nav-text" routerLinkActive="active" routerLink="/home">
+                <clr-icon shape="home"></clr-icon>
+            </a>
             <a class="nav-link" class="nav-link nav-text" routerLinkActive="active" routerLink="/lab" *ngIf="gameService.game.labTab.unlocked">
-                <span>Lab</span>
+                <clr-icon shape="library"></clr-icon>
             </a>
         </div>
         <div class="header-actions">

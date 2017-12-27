@@ -1,4 +1,4 @@
-import {Game} from './game';
+import { Game } from './game';
 import { Decimal } from 'decimal.js'
 import { Base } from './base'
 import { Unit } from './unit'
@@ -27,9 +27,15 @@ export class Production extends Base {
 
     reload() {
         this.prodPerSec = this.rateo.times(this.productor.percentage / 100).times(this.productor.boost.plus(1))
+        //    Bonus
         let bonus = new Decimal(1)
         for (let bon of this.bonus.filter(b => b.isAactive()))
             bonus = bonus.plus(bon.getBoost())
+
+        //    Unit Bonus
+        if (this.rateo.greaterThan(0))
+            bonus = bonus.plus(this.product.totBonus)
+
         this.prodPerSec = this.prodPerSec.times(bonus)
         this.prodPerTick = this.prodPerSec.div(5).times(this.productor.quantity)
     }

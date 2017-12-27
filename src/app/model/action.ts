@@ -5,7 +5,7 @@ import { Unit } from 'app/model/unit'
 import { Decimal } from "decimal.js"
 import { Game } from 'app/model/game'
 import * as numberformat from 'swarm-numberformat'
-
+import { Bonus } from 'app/model/bonus';
 
 export class Action extends Base {
 
@@ -196,5 +196,36 @@ export class HireAction extends Action {
         super("hr", "Hire Bonus", "Get more unit for the same price", price, unit, game)
         this.showHide = true
         this.unlocked = false
+    }
+}
+
+export class ActiveBonus extends Action {
+    constructor(
+        price = new Array<Cost>(),
+        public bonus: Bonus = null,
+        game: Game,
+        public tick: Decimal) {
+        super("actB_" + bonus.id, "", "", price, null, game)
+        this.bonus.activeAction = this
+        this.unlocked = true
+    }
+    reloadMaxBuy() {
+        if (this.bonus.alwaysOn || !this.bonus.unlocked) {
+            this.maxBuy = new Decimal(0)
+            this.canBuy = false
+        } else if (!this.bonus.isAactive()) {
+            super.reloadMaxBuy()
+            this.maxBuy = Decimal.min(1, this.maxBuy)
+        } else {
+            this.maxBuy = new Decimal(0)
+            this.canBuy = false
+        }
+    }
+    buy(number: Decimal = new Decimal(1)): boolean {
+        if (super.buy(number)) {
+            this.bonus.tickLeft = this.bonus.tickLeft.plus(this.tick)
+            return true
+        }
+        return false
     }
 }
