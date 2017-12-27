@@ -1,4 +1,5 @@
 import { Decimal } from "decimal.js"
+import { Game } from "app/model/game";
 
 export class Base {
 
@@ -11,8 +12,11 @@ export class Base {
     constructor(
         public id: string,
         public name = "",
-        public description = ""
-    ) { }
+        public description = "",
+        public game: Game
+    ) {
+        this.game.allMap.set(this.id, this)
+    }
 
     getData() {
         const data: any = {}

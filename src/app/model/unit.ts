@@ -1,6 +1,6 @@
 import { Production } from './production'
 import { Base } from './base'
-import { Action, Buy, BoostAction, HireAction } from './action';
+import { Action, Buy, BoostAction, HireAction } from './action'
 import { Cost } from './cost'
 import { Decimal } from 'decimal.js'
 
@@ -33,9 +33,10 @@ export class Unit extends Base {
         id: string,
         name: string,
         description: string,
-        public game: Game
+        game: Game
     ) {
-        super(id, name, description)
+        super(id, name, description, game)
+        this.game.allUnit.push(this)
     }
 
     getData(): any {

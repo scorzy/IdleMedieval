@@ -29,9 +29,9 @@ export class Action extends Base {
         name, description,
         public price = new Array<Cost>(),
         public unit: Unit = null,
-        public game: Game
+        game: Game
     ) {
-        super(id, name, description)
+        super(id, name, description, game)
         this.realPriceNow = price
     }
 
@@ -94,6 +94,7 @@ export class Action extends Base {
         return data
     }
     load(data: any) {
+        super.load(data)
         if (data.own)
             this.owned = data.own
     }
