@@ -1,4 +1,4 @@
-import { Component, OnInit, HostBinding, Input } from '@angular/core';
+import { Component, OnInit, HostBinding, Input, ChangeDetectionStrategy } from '@angular/core';
 import * as numberformat from 'swarm-numberformat';
 import { Decimal } from 'decimal.js'
 import { Bonus } from '../model/bonus'
@@ -8,12 +8,14 @@ import { ServService } from '../serv.service';
 @Component({
     selector: 'app-village',
     templateUrl: './village.component.html',
-    styleUrls: ['./village.component.scss']
+    styleUrls: ['./village.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class VillageComponent implements OnInit {
     @HostBinding('class.card') card = 'card'
 
     @Input() village: Village
+    @Input() home = false
 
     constructor(public gs: ServService) {
         this.village = gs.game.village

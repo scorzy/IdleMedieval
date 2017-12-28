@@ -4,7 +4,6 @@ import { Action, Buy, BoostAction, HireAction } from './action'
 import { Cost } from './cost'
 import { Decimal } from 'decimal.js'
 
-import { Race } from './types'
 import { Game } from 'app/model/game';
 import { Bonus } from 'app/model/bonus';
 export class Unit extends Base {
@@ -32,6 +31,8 @@ export class Unit extends Base {
     bonus = new Array<Bonus>()
     totBonus = new Decimal(1)
     worldBonus = new Decimal(0)
+
+    productionIndep = false
 
     constructor(
         id: string,

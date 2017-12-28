@@ -1,6 +1,6 @@
 import { Decimal } from "decimal.js"
 import { Game } from "app/model/game"
-import { Race } from "app/model/types";
+import { Races } from "app/model/types";
 
 export class Base {
 
@@ -9,7 +9,7 @@ export class Base {
     avabileThisWorld = true
     alwaysOn = false
     isNew = false
-    race = Race.human
+    race = Races[0]
 
     constructor(
         public id: string,

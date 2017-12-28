@@ -1,16 +1,16 @@
-import { BoostAction, HireAction, Action, ActiveBonus } from './action';
-import { TypeList } from './typeList';
+import { BoostAction, HireAction, Action, ActiveBonus } from './action'
+import { TypeList } from './typeList'
 import { Production } from './production'
-import { Unit } from './unit';
+import { Unit } from './unit'
 import { Base } from './base'
-import { Decimal } from 'decimal.js';
-import { Buy, Research, BuyAndUnlock } from 'app/model/action';
-import { Cost } from 'app/model/cost';
-import { EventEmitter } from '@angular/core';
-import { Type } from '@angular/core/src/type';
-import { Race } from 'app/model/types';
-import { Bonus } from 'app/model/bonus';
-import { Village } from 'app/model/village';
+import { Decimal } from 'decimal.js'
+import { Buy, Research, BuyAndUnlock, KingOrder } from 'app/model/action'
+import { Cost } from 'app/model/cost'
+import { EventEmitter } from '@angular/core'
+import { Type } from '@angular/core/src/type'
+import { Races } from 'app/model/types'
+import { Bonus } from 'app/model/bonus'
+import { Village } from 'app/model/village'
 
 export class Game {
     researchsObs: EventEmitter<number> = new EventEmitter<number>()
@@ -30,8 +30,12 @@ export class Game {
     buyMulti = 1
     pause = false
     isLab = false
+    isOrd = true
     resList = new Array<Research>()
     labTab: Base
+    vilTab: Base
+    ordTab: Base
+    travelTab: Base
 
     // region Materials
     food: Unit; wood: Unit; stone: Unit; metal: Unit; gold: Unit; science: Unit; mana: Unit
@@ -59,10 +63,15 @@ export class Game {
     // endregion
 
     village: Village
+    nextVillage = new Array<Village>()
 
     constructor() {
-        this.labTab = new Base("labTab", "", "", this)
+        this.labTab = new Base("labTb", "", "", this)
+        this.vilTab = new Base("vilTb", "", "", this)
+        this.ordTab = new Base("ordTb", "", "", this)
+        this.travelTab = new Base("trvTb", "", "", this)
         this.honor = new Unit("honor", "Honor", "honor", this)
+
         this.initResouces()
         this.initWorkers()
         this.initResearchs()
@@ -70,11 +79,13 @@ export class Game {
         this.init()
         this.allUnit.forEach(u => u.reloadProdTable())
 
-        this.village = new Village("ciao", [Race.human])
+        this.village = new Village("ciao", [Races[0]])
+        this.village.kingOrders.push(new KingOrder("k1", [new Cost(this.food, new Decimal(15))], this))
 
         this.worldReset()
-        this.initRace(Race.human)
+        this.initRace(Races[0])
         this.reloadAll()
+        this.setRandomVillage(true)
     }
 
     init() {
@@ -90,13 +101,16 @@ export class Game {
             u.realtotalPerSec = new Decimal(0)
             u.notEnought = u.producs.length > 0
         })
-        this.activeUnits.filter(u => !u.producsActive.find(prod =>
+        this.activeUnits.filter(u => u.productionIndep || !u.producsActive.find(prod =>
             prod.prodPerTick.lessThan(0) && prod.prodPerTick.abs().greaterThan(prod.product.quantity)
         )).forEach(u => {
             u.producsActive.forEach(prod => {
+                const p = prod.prodPerTick.greaterThan(0) ? prod.prodPerTick :
+                    Decimal.min(prod.prodPerTick, prod.product.quantity.times(1))
                 if (!this.pause)
-                    prod.product.quantity = prod.product.quantity.plus(prod.prodPerTick)
-                prod.product.realtotalPerSec = prod.product.realtotalPerSec.plus(prod.prodPerTick)
+                    prod.product.quantity = prod.product.quantity.plus(p)
+
+                prod.product.realtotalPerSec = prod.product.realtotalPerSec.plus(p)
                 u.notEnought = false
             })
         })
@@ -223,14 +237,32 @@ export class Game {
         this.bonuList.forEach(bon => { bon.tickLeft = new Decimal(0) })
         this.labTab.avabileThisWorld = true
     }
-    initRace(race: Race) {
+    initRace(race: string) {
         this.allArr.filter(u => u.race === race).forEach(ra => ra.avabileThisWorld = true)
         switch (race) {
-            case Race.human:
+            case Races[0]:
                 this.unlockUnits([this.team1, this.woodRes, this.hunter])
                 this.hunter.quantity = new Decimal(1)
                 break
         }
+    }
+    setMaxLevel() { }
+    setRandomVillage(force: boolean = false) {
+        this.setMaxLevel()
+        if (!this.nextVillage || force)
+            this.nextVillage = [
+                Village.GenerateVillage(this),
+                Village.GenerateVillage(this),
+                Village.GenerateVillage(this)
+            ]
+        else
+            for (let i = 0; i < 3; i++)
+                if (!this.nextVillage[i].keep)
+                    this.nextVillage[i] = Village.GenerateVillage(this)
+
+        for (let i = 0; i < 3; i++)
+            this.nextVillage[i].id = "" + i
+
     }
 
     initResouces() {
@@ -313,17 +345,23 @@ export class Game {
     }
     initResearchs() {
         // region boost and hire
-        const allHumanHire = this.allUnit.filter(u => u.race === Race.human && u.hireAction).map(u2 => u2.hireAction)
+        const allHumanHire = this.allUnit.filter(u => u.race === Races[0] && u.hireAction).map(u2 => u2.hireAction)
         this.hire = new Research("hire", "Hiring", "Team Work",
             [new Cost(this.science, new Decimal(10))], allHumanHire, this)
 
-        const allHumanBoost = this.allUnit.filter(u => u.race === Race.human && u.boostAction).map(u2 => u2.boostAction)
+        const allHumanBoost = this.allUnit.filter(u => u.race === Races[0] && u.boostAction).map(u2 => u2.boostAction)
         this.team2 = new Research("te2", "Team Work 2", "Team Work",
             [new Cost(this.science, new Decimal(10))], allHumanBoost.concat(this.hire), this)
 
         this.team1 = new Research("te1", "Team Work", "Team Work",
             [new Cost(this.science, new Decimal(10))], [this.team2], this)
         // endregion
+
+        const orderRes = new Research("orderRes", "Orders", "Orders",
+            [new Cost(this.science, new Decimal(10))], [this.honor, this.ordTab, this.vilTab, this.travelTab], this)
+
+        const goldRes = new Research("goldRes", "Gold", "Gold",
+            [new Cost(this.science, new Decimal(10))], [this.gold, orderRes], this)
 
         const hunterBonus = new Bonus("bonBH", "Smart Hunters",
             "Make hunter more usefull; +100% food from hunters", this, new Decimal(1), null, true)
@@ -334,7 +372,7 @@ export class Game {
         betterHunting.unlocked = true
 
         const manaRes = new Research("manaRes", "Mana", "Mana",
-            [new Cost(this.science, new Decimal(10))], [this.mage, this.mana], this)
+            [new Cost(this.science, new Decimal(10))], [this.mage, this.mana, goldRes], this)
 
         const metalRes = new Research("meRe", "Metal", "Metal",
             [new Cost(this.science, new Decimal(10))], [this.miner, this.metal, manaRes], this)

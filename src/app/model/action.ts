@@ -238,6 +238,8 @@ export class KingOrder extends Action {
         game: Game
     ) {
         super("ko" + id, "King Order", "king Order", price, game.honor, game, false)
+        this.showHide = false
+        this.unlocked = true
     }
     buy(number: Decimal = new Decimal(1)): boolean {
         if (super.buy(number)) {

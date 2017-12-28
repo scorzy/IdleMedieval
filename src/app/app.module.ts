@@ -18,6 +18,9 @@ import { SaveComponent } from './save/save.component';
 import { SpellListComponent } from './spell-list/spell-list.component';
 import { SpellComponent } from './spell/spell.component';
 import { VillageComponent } from './village/village.component';
+import { OrdersComponent } from './orders/orders.component';
+import { CurVillComponent } from './cur-vill/cur-vill.component';
+import { TravelComponent } from './travel/travel.component';
 
 @NgModule({
     declarations: [
@@ -31,7 +34,10 @@ import { VillageComponent } from './village/village.component';
         SaveComponent,
         SpellListComponent,
         SpellComponent,
-        VillageComponent
+        VillageComponent,
+        OrdersComponent,
+        CurVillComponent,
+        TravelComponent
     ],
     imports: [
         BrowserAnimationsModule,

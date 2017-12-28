@@ -1,3 +1,48 @@
-<span *ngFor="let r of village.avaiableRaces">
-    {{r}}
-</span>
+<div class="card-header">
+    {{village.name}}
+</div>
+<div class="card-block">
+    <div class="card-text">
+        <span>Races:</span>
+        <span *ngFor="let r of village.avaiableRaces">
+            {{r}}
+        </span>
+
+        <div *ngIf="village.startingStuff?.length > 0">
+            <span>Start with: </span>
+            <ul>
+                <li *ngFor="let s of village.startingStuff">
+                    {{s[0].name}} x {{s[1] | format}}
+                </li>
+            </ul>
+        </div>
+
+        <div *ngIf="village.avaiableStuff?.length > 0">
+            <span>Avaiable: </span>
+            <ul>
+                <li *ngFor="let a of village.avaiableStuff">
+                    {{a.name}}
+                </li>
+            </ul>
+        </div>
+
+        <div *ngIf="village.gainMulti?.length > 0">
+            <span>Resource Multipliers: </span>
+            <ul>
+                <li *ngFor="let g of village.gainMulti">
+                    {{g[0].name}} x {{g[1] | format}}
+                </li>
+            </ul>
+        </div>
+
+        <div *ngIf="village.malus?.length > 0">
+            <span>Malus: </span>
+            <ul>
+                <li *ngFor="let m of village.malus">
+                    {{m}}
+                </li>
+            </ul>
+        </div>
+
+    </div>
+</div>
