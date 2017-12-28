@@ -59,7 +59,7 @@
                     </span>
 
                     <span class="perSecTab small">
-                        <span *ngIf="g.totalPerSec.abs().greaterThan(0.001)">
+                        <span *ngIf="g.realtotalPerSec.abs().greaterThan(0.001)">
                             {{g.totalPerSec | format}}/s
                         </span>
                     </span>

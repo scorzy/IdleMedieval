@@ -4,11 +4,12 @@ import { Base } from './base'
 import { Races, Malus } from './types'
 import { Cost } from 'app/model/cost'
 import { KingOrder } from 'app/model/action'
-
+import { Decimal } from "decimal.js"
 export class Village {
 
     keep = false
     id = ""
+    level = new Decimal(1)
 
     static GenerateVillage(game: Game): Village {
         const village = new Village()
@@ -32,6 +33,7 @@ export class Village {
 
     getSave() {
         const data: any = {}
+        data.vl = this.level
         data.vn = this.name
         data.vr = this.avaiableRaces
         data.vk = this.keep
@@ -43,6 +45,8 @@ export class Village {
         return data
     }
     loadData(data: any, game: Game) {
+        if (data.vl)
+            this.level = new Decimal(data.vl)
         if (data.vn)
             this.name = data.vn
         if (data.vr)
@@ -74,6 +78,5 @@ export class Village {
         if (data.vm)
             this.avaiableRaces = data.vm
     }
-
 
 }

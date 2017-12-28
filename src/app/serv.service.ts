@@ -9,7 +9,7 @@ export class ServService {
     game: Game
     constructor() {
         this.game = new Game()
-        setInterval(this.update.bind(this), 250)
+        setInterval(this.update.bind(this), 10)    // 250
     }
 
     update() {
