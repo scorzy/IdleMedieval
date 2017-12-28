@@ -300,6 +300,7 @@ export class Game {
         this.mage = new Unit("mage", "Mage", "Mage description", this)
         this.productionTable.push(new Production(this.mage, this.mana, new Decimal(1), this))
         this.productionTable.push(new Production(this.mage, this.food, new Decimal(-4), this))
+        this.productionTable.push(new Production(this.mage, this.science, new Decimal(-1), this))
         this.mage.createBuy([new Cost(this.food, new Decimal(10))])
         this.mage.createBoost([new Cost(this.science, this.scienceCost1, this.expTeam)])
         this.mage.createHire([new Cost(this.science, this.scienceCost1, this.expTeam)])
@@ -307,8 +308,8 @@ export class Game {
         //    Miner
         this.miner = new Unit("miner", "Miner", "Miner description", this)
         this.productionTable.push(new Production(this.miner, this.metal, new Decimal(1), this))
-        this.productionTable.push(new Production(this.miner, this.wood, new Decimal(-1), this))
         this.productionTable.push(new Production(this.miner, this.food, new Decimal(-2), this))
+        this.productionTable.push(new Production(this.miner, this.wood, new Decimal(-2), this))
         this.miner.createBuy([new Cost(this.food, new Decimal(10))])
         this.miner.createBoost([new Cost(this.science, this.scienceCost1, this.expTeam)])
         this.miner.createHire([new Cost(this.science, this.scienceCost1, this.expTeam)])
@@ -316,8 +317,8 @@ export class Game {
         //    Quarrymen
         this.quarrymen = new Unit("quar", "Quarrymen", "Quarrymen description", this)
         this.productionTable.push(new Production(this.quarrymen, this.stone, new Decimal(1), this))
-        this.productionTable.push(new Production(this.quarrymen, this.wood, new Decimal(-1), this))
         this.productionTable.push(new Production(this.quarrymen, this.food, new Decimal(-2), this))
+        this.productionTable.push(new Production(this.quarrymen, this.wood, new Decimal(-1), this))
         this.quarrymen.createBuy([new Cost(this.food, new Decimal(10))])
         this.quarrymen.createBoost([new Cost(this.science, this.scienceCost1, this.expTeam)])
         this.quarrymen.createHire([new Cost(this.science, this.scienceCost1, this.expTeam)])
@@ -441,7 +442,6 @@ export class Game {
         // endregion
 
         // region Buldings
-
         const buldings = new Research("woodBRes", "Woodcutting Camp", "Woodcutting Camp",
             [new Cost(this.science, new Decimal(10))],
             [this.woodCamp, this.cave, this.huntCamp, this.university, this.mine, this.mageTower, this.forge], this)
