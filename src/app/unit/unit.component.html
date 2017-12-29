@@ -31,7 +31,7 @@
                     <tbody>
                         <tr *ngFor="let item of gen.producsActive" [ngClass]="{'alert alert-warning no-alert': item.efficiency < 0}">
                             <td class="w-33 text-capitalize">
-                                <a [routerLink]="['/main/unit/unit/'+item.product.id]">{{item.product.name}}</a>
+                                <a [routerLink]="['/home/'+item.product.id]">{{item.product.name}}</a>
                             </td>
                             <td class="w-33">{{item.prodPerSec | format}}</td>
                             <td class="w-33">{{item.prodPerSec.times(gen.quantity) | format}}</td>

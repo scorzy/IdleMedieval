@@ -134,8 +134,9 @@ export class Game {
             )
             u.actions.forEach(a => a.reloadMaxBuy())
             u.avActions = u.actions.filter(a => a.unlocked)
-            u.showUp = u.boostAction && u.boostAction.maxBuy.greaterThanOrEqualTo(1) ||
-                u.hireAction && u.hireAction.maxBuy.greaterThanOrEqualTo(1)
+            u.showUp = u.boostAction && u.boostAction.showHide && u.boostAction.maxBuy.greaterThanOrEqualTo(1) ||
+                u.hireAction && u.hireAction.showHide && u.hireAction.maxBuy.greaterThanOrEqualTo(1)
+            console.log( u.boostAction && u.boostAction.showHide )
         })
         this.unlockedActiveBoost.forEach(b => b.activeAction.reloadMaxBuy())
         if (this.isLab)
@@ -438,7 +439,6 @@ export class Game {
             "Make hunter more usefull; +100% food from hunters",
             [new Cost(this.science, new Decimal(1))], [hunterBonus], this)
         this.hunter.producs[0].bonus.push(hunterBonus)
-        betterHunting.unlocked = true
         // endregion
 
         // region Buldings
@@ -455,7 +455,7 @@ export class Game {
             [new Cost(this.science, new Decimal(10))], [this.blacksmith, this.gold, orderRes], this)
 
         const manaRes = new Research("manaRes", "Mana", "Mana",
-            [new Cost(this.science, new Decimal(10))], [this.mage, this.mana, blackRes], this)
+            [new Cost(this.science, new Decimal(10))], [this.mage, this.mana, blackRes, betterHunting], this)
 
         const metalRes = new Research("meRe", "Metal", "Metal",
             [new Cost(this.science, new Decimal(10))], [this.miner, this.metal, manaRes], this)
