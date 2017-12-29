@@ -10,20 +10,17 @@
             </a>
         </div>
         <div class="header-nav" [clr-nav-level]="1">
-            <!-- <a class="nav-link" class="nav-link nav-text" routerLinkActive="active" routerLink="/home">
-                <clr-icon shape="home"></clr-icon>
-            </a> -->
             <a class="nav-link" class="nav-link nav-text" routerLinkActive="active" routerLink="/lab" *ngIf="gameService.game.labTab.unlocked">
                 <clr-icon shape="library"></clr-icon>
             </a>
-            <a class="nav-link" class="nav-link nav-text" routerLinkActive="active" routerLink="/vil">
+            <a class="nav-link" class="nav-link nav-text" routerLinkActive="active" routerLink="/vil" *ngIf="gameService.game.vilTab.unlocked">
                 <clr-icon shape="home"></clr-icon>
             </a>
-            <a class="nav-link" class="nav-link nav-text" routerLinkActive="active" routerLink="/ord">
+            <a class="nav-link" class="nav-link nav-text" routerLinkActive="active" routerLink="/ord" *ngIf="gameService.game.ordTab.unlocked">
                 <clr-icon shape="scroll"></clr-icon>
             </a>
-            <a class="nav-link" class="nav-link nav-text" routerLinkActive="active" routerLink="/travel">
-                <clr-icon shape="scroll"></clr-icon>
+            <a class="nav-link" class="nav-link nav-text" routerLinkActive="active" routerLink="/travel" *ngIf="gameService.game.travelTab.unlocked">
+                <clr-icon shape="world"></clr-icon>
             </a>
         </div>
         <div class="header-actions">
@@ -71,5 +68,6 @@
     </nav>
 
     <router-outlet></router-outlet>
+    <p-growl [(value)]="gameService.msgs"></p-growl>
 
 </clr-main-container>

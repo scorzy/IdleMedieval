@@ -18,6 +18,7 @@
             "prefix": "app",
             "mobile": false,
             "styles": [
+                "../node_modules/font-awesome/css/font-awesome.min.css",
                 "../node_modules/primeng/resources/themes/darkness/theme.css",
                 "../node_modules/primeng/resources/primeng.min.css",
                 "../node_modules/@clr/icons/clr-icons.min.css",

@@ -4,7 +4,7 @@ import { Base } from './base'
 import { Races, Malus } from './types'
 import { Cost } from 'app/model/cost'
 import { KingOrder } from 'app/model/action'
-import { Decimal } from "decimal.js"
+import * as Decimal from 'break_infinity.js'
 export class Village {
 
     keep = false
@@ -13,9 +13,17 @@ export class Village {
 
     static GenerateVillage(game: Game): Village {
         const village = new Village()
+        //    Bonus and Malus
         village.avaiableRaces.push(Races[Math.floor(Math.random() * Races.length)])
-
         village.malus.push(Malus[Math.floor(Math.random() * Malus.length)])
+
+        //    Orders
+        let unusedMat = game.matList.list
+        for (let i = 0; i < 3; i++) {
+            let mat = unusedMat[Math.floor(Math.random() * unusedMat.length)]
+            village.kingOrders.push(new KingOrder("" + i, mat, game))
+            unusedMat = unusedMat.filter(m => m !== mat)
+        }
         return village
     }
 

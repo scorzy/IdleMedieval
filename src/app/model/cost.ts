@@ -1,5 +1,5 @@
 import { Unit } from "./unit"
-import { Decimal } from "decimal.js"
+import * as Decimal from 'break_infinity.js'
 
 export class Cost {
 

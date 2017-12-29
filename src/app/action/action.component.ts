@@ -3,7 +3,7 @@ import { Action } from 'app/model/action';
 import { Cost } from 'app/model/cost';
 import * as numberformat from 'swarm-numberformat';
 import { ServService } from 'app/serv.service';
-import { Decimal } from 'decimal.js';
+import * as Decimal from 'break_infinity.js'
 import { Bonus } from '../model/bonus';
 
 @Component({

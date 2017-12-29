@@ -1,5 +1,5 @@
 import { Game } from './game';
-import { Decimal } from 'decimal.js'
+import * as Decimal from 'break_infinity.js'
 import { Base } from './base'
 import { Unit } from './unit'
 import { Bonus } from './bonus'

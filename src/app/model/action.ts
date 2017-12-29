@@ -2,7 +2,7 @@ import { ServService } from 'app/serv.service'
 import { Base } from './base'
 import { Cost } from './cost'
 import { Unit } from 'app/model/unit'
-import { Decimal } from "decimal.js"
+import * as Decimal from 'break_infinity.js'
 import { Game } from 'app/model/game'
 import * as numberformat from 'swarm-numberformat'
 import { Bonus } from 'app/model/bonus'
@@ -234,10 +234,12 @@ export class ActiveBonus extends Action {
 export class KingOrder extends Action {
     constructor(
         id: string,
-        price: Array<Cost>,
+        material: Unit,
         game: Game
     ) {
-        super("ko" + id, "King Order", "king Order", price, game.honor, game, false)
+        super("ko" + id, "King Order", "king Order",
+            [new Cost(material, new Decimal(1E9), new Decimal(1E3))],
+            game.honorInactive, game, false)
         this.showHide = false
         this.unlocked = true
     }

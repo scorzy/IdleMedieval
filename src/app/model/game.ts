@@ -3,7 +3,6 @@ import { TypeList } from './typeList'
 import { Production } from './production'
 import { Unit } from './unit'
 import { Base } from './base'
-import { Decimal } from 'decimal.js'
 import { Buy, Research, BuyAndUnlock, KingOrder } from 'app/model/action'
 import { Cost } from 'app/model/cost'
 import { EventEmitter } from '@angular/core'
@@ -11,6 +10,7 @@ import { Type } from '@angular/core/src/type'
 import { Races } from 'app/model/types'
 import { Bonus } from 'app/model/bonus'
 import { Village } from 'app/model/village'
+import * as Decimal from 'break_infinity.js'
 
 export class Game {
     researchsObs: EventEmitter<number> = new EventEmitter<number>()
@@ -36,6 +36,7 @@ export class Game {
     vilTab: Base
     ordTab: Base
     travelTab: Base
+    tabList = new Array<Base>()
 
     // region Materials
     food: Unit; wood: Unit; stone: Unit; metal: Unit; gold: Unit; science: Unit; mana: Unit
@@ -53,6 +54,7 @@ export class Game {
     // region Prestige
     prestigeDone = new Decimal(0)
     honor: Unit
+    honorInactive: Unit
     //#endregion
     // region costs
     buyExp = new Decimal(1.1)
@@ -73,7 +75,9 @@ export class Game {
         this.vilTab = new Base("vilTb", "", "", this)
         this.ordTab = new Base("ordTb", "", "", this)
         this.travelTab = new Base("trvTb", "", "", this)
-        this.honor = new Unit("honor", "Honor", "honor", this)
+        this.tabList = [this.labTab, this.vilTab, this.ordTab, this.travelTab]
+        this.honor = new Unit("honor", "Honor", "Honor", this)
+        this.honorInactive = new Unit("hoIna", "Inactive Honor", "Inactive Honor", this)
 
         this.initResouces()
         this.initWorkers()
@@ -83,13 +87,16 @@ export class Game {
         this.init()
         this.allUnit.forEach(u => u.reloadProdTable())
 
-        this.village = new Village("ciao", [Races[0]])
-        this.village.kingOrders.push(new KingOrder("k1", [new Cost(this.food, new Decimal(15))], this))
+        // this.village = new Village("ciao", [Races[0]])
+        // this.village.kingOrders.push(new KingOrder("k1", [new Cost(this.food, new Decimal(15))], this))
+
+        this.village = Village.GenerateVillage(this)
 
         this.worldReset()
         this.initRace(Races[0])
         this.reloadAll()
         this.setRandomVillage(true)
+
     }
 
     init() {
@@ -109,8 +116,7 @@ export class Game {
             prod.prodPerTick.lessThan(0) && prod.prodPerTick.abs().greaterThan(prod.product.quantity)
         )).forEach(u => {
             u.producsActive.forEach(prod => {
-                const p = prod.prodPerTick.greaterThan(0) ? prod.prodPerTick :
-                    Decimal.min(prod.prodPerTick, prod.product.quantity.times(1))
+                const p = prod.prodPerTick
                 if (!this.pause)
                     prod.product.quantity = prod.product.quantity.plus(p)
 
@@ -125,6 +131,7 @@ export class Game {
     }
     reload() {
         this.activeUnits.forEach(u => {
+            u.quantity = Decimal.max(u.quantity, 0)
             u.reloadProd()
             u.reloadBoost()
             u.totalProducers = new Decimal(u.madeByActive.length)
@@ -134,9 +141,8 @@ export class Game {
             )
             u.actions.forEach(a => a.reloadMaxBuy())
             u.avActions = u.actions.filter(a => a.unlocked)
-            u.showUp = u.boostAction && u.boostAction.showHide && u.boostAction.maxBuy.greaterThanOrEqualTo(1) ||
-                u.hireAction && u.hireAction.showHide && u.hireAction.maxBuy.greaterThanOrEqualTo(1)
-            console.log( u.boostAction && u.boostAction.showHide )
+            u.showUp = u.boostAction && u.boostAction.show && u.boostAction.maxBuy.greaterThanOrEqualTo(1) ||
+                u.hireAction && u.hireAction.show && u.hireAction.maxBuy.greaterThanOrEqualTo(1)
         })
         this.unlockedActiveBoost.forEach(b => b.activeAction.reloadMaxBuy())
         if (this.isLab)
@@ -200,6 +206,8 @@ export class Game {
                 u.producsActive = u.producs.filter(p => p.unlocked)
                 u.madeByActive = u.madeBy.filter(p => p.unlocked)
             }
+            if (u instanceof Bonus && u.activeAction)
+                u.activeAction.unlocked = true
 
         })
         if (!ok)
@@ -415,7 +423,7 @@ export class Game {
         this.huntCamp.createHire([new Cost(this.science, this.scienceCost1, this.expTeam)])
 
         const buildList = new TypeList("Buildings")
-        buildList.list.push(this.woodCamp, this.cave, this.huntCamp, this.university, this.mine, this.mageTower, this.forge)
+        buildList.list.push(this.huntCamp, this.university, this.woodCamp, this.cave, this.mine, this.mageTower, this.forge)
         this.mainLists.push(buildList)
     }
     initResearchs() {
@@ -433,6 +441,23 @@ export class Game {
         // endregion
 
         // region bonus
+        const calth = new Bonus("calth", "Call to Arms",
+            "x10 gold from blacksmiths x forge; 20 sec",
+            this, new Decimal(10), this.forge, false)
+        calth.createActiveAct(new Decimal(1), new Decimal(80))
+        const calthRes = new Research("calthRes", calth.name, calth.description,
+            [new Cost(this.science, new Decimal(1))], [calth], this)
+        this.blacksmith.producs[0].bonus.push(calth)
+
+        const bigHunt = new Bonus("bHuB", "Big Hunt",
+            "x10 food from hunters; 20 sec",
+            this, new Decimal(10), null, false)
+        bigHunt.createActiveAct(new Decimal(100), new Decimal(80))
+        const bigHuntRes = new Research("bHuRe", "Big Hunt",
+            "Make hunter more usefull; +100% food from hunters",
+            [new Cost(this.science, new Decimal(1))], [bigHunt], this)
+        this.hunter.producs[0].bonus.push(bigHunt)
+
         const hunterBonus = new Bonus("bonBH", "Smart Hunters",
             "Make hunter more usefull; +100% food from hunters", this, new Decimal(1), null, true)
         const betterHunting = new Research("betterHunting", "Smart Hunters",
@@ -444,8 +469,8 @@ export class Game {
         // region Buldings
         const buldings = new Research("woodBRes", "Woodcutting Camp", "Woodcutting Camp",
             [new Cost(this.science, new Decimal(10))],
-            [this.woodCamp, this.cave, this.huntCamp, this.university, this.mine, this.mageTower, this.forge], this)
-        // region
+            [calthRes, this.woodCamp, this.cave, this.huntCamp, this.university, this.mine, this.mageTower, this.forge], this)
+        // endregion
 
         // region Workers
         const orderRes = new Research("orderRes", "Orders", "Orders",
@@ -455,10 +480,10 @@ export class Game {
             [new Cost(this.science, new Decimal(10))], [this.blacksmith, this.gold, orderRes], this)
 
         const manaRes = new Research("manaRes", "Mana", "Mana",
-            [new Cost(this.science, new Decimal(10))], [this.mage, this.mana, blackRes, betterHunting], this)
+            [new Cost(this.science, new Decimal(10))], [this.mage, this.mana, blackRes, bigHuntRes], this)
 
         const metalRes = new Research("meRe", "Metal", "Metal",
-            [new Cost(this.science, new Decimal(10))], [this.miner, this.metal, manaRes], this)
+            [new Cost(this.science, new Decimal(10))], [this.miner, this.metal, manaRes, betterHunting], this)
 
         const stoneRes = new Research("stoRe", "Quarry", "Quarry",
             [new Cost(this.science, new Decimal(10))], [this.quarrymen, this.stone, metalRes], this)

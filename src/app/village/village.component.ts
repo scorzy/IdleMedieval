@@ -1,6 +1,6 @@
 import { Component, OnInit, HostBinding, Input, ChangeDetectionStrategy } from '@angular/core';
 import * as numberformat from 'swarm-numberformat';
-import { Decimal } from 'decimal.js'
+import * as Decimal from 'break_infinity.js'
 import { Bonus } from '../model/bonus'
 import { Village } from '../model/village'
 import { ServService } from '../serv.service';

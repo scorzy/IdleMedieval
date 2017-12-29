@@ -1,4 +1,4 @@
-import { Decimal } from "decimal.js"
+import * as Decimal from 'break_infinity.js'
 import { Game } from "app/model/game"
 import { Races } from "app/model/types";
 

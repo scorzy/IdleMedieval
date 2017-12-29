@@ -1,7 +1,7 @@
 import { Cost } from './cost';
 import { Base } from './base'
 import { Game } from 'app/model/game'
-import { Decimal } from 'decimal.js'
+import * as Decimal from 'break_infinity.js'
 import { ActiveBonus } from 'app/model/action';
 
 
@@ -13,7 +13,7 @@ export class Bonus extends Base {
         name: string,
         description: string,
         game: Game,
-        power = new Decimal(1),
+        public power = new Decimal(1),
         public unitMulti: Base = null,
         allOn = false
     ) {
@@ -36,9 +36,9 @@ export class Bonus extends Base {
         if (!this.isAactive())
             return new Decimal(0)
         else if (this.unitMulti)
-            return this.unitMulti.quantity.times(this.quantity)
+            return this.unitMulti.quantity.times(this.power)
         else
-            return this.quantity
+            return this.power
     }
     isAactive(): boolean {
         return this.unlocked && (this.alwaysOn || this.tickLeft.greaterThan(0))

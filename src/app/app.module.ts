@@ -21,6 +21,7 @@ import { VillageComponent } from './village/village.component';
 import { OrdersComponent } from './orders/orders.component';
 import { CurVillComponent } from './cur-vill/cur-vill.component';
 import { TravelComponent } from './travel/travel.component';
+import { GrowlModule } from 'primeng/primeng';
 
 @NgModule({
     declarations: [
@@ -46,7 +47,8 @@ import { TravelComponent } from './travel/travel.component';
         HttpModule,
         ClarityModule,
         ROUTING,
-        SliderModule
+        SliderModule,
+        GrowlModule
     ],
     providers: [ServService],
     bootstrap: [AppComponent]

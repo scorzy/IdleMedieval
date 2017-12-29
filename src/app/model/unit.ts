@@ -2,7 +2,7 @@ import { Production } from './production'
 import { Base } from './base'
 import { Action, Buy, BoostAction, HireAction } from './action'
 import { Cost } from './cost'
-import { Decimal } from 'decimal.js'
+import * as Decimal from 'break_infinity.js'
 
 import { Game } from 'app/model/game';
 import { Bonus } from 'app/model/bonus';
