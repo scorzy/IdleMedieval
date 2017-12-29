@@ -1,3 +1,4 @@
+import { Malus } from './types';
 import { BoostAction, HireAction, Action, ActiveBonus } from './action'
 import { TypeList } from './typeList'
 import { Production } from './production'
@@ -44,11 +45,12 @@ export class Game {
     // endregion
     // region Workes
     hunter: Unit; student: Unit; lumberjack: Unit; miner: Unit; quarrymen: Unit; mage: Unit; blacksmith: Unit
+    soldier: Unit; templar: Unit
     // endregion
     // region Researchs
     team1: Research; team2: Research; hire: Research; woodRes: Research
     // endregion
-    // region buldings
+    // region Buldings
     huntCamp: Unit; university: Unit; woodCamp: Unit; cave: Unit; mine: Unit; mageTower: Unit; forge: Unit
     // endregion
     // region Prestige
@@ -56,7 +58,7 @@ export class Game {
     honor: Unit
     honorInactive: Unit
     //#endregion
-    // region costs
+    // region Costs
     buyExp = new Decimal(1.1)
     buyExpUnit = new Decimal(1)
     scienceCost1 = new Decimal(100)
@@ -65,6 +67,11 @@ export class Game {
     scienceCost4 = new Decimal(1E5)
     expTeam = new Decimal(4)
     expHire = new Decimal(6)
+    // endregion
+    // region Malus
+    thief: Unit; masterThief: Unit; thiefGuild: Unit; thievesList = new Array<Unit>()
+    zombie: Unit; lordZombie: Unit; zombieLich: Unit; zombieList = new Array<Unit>()
+    malusLists = new Array<Array<Unit>>()
     // endregion
 
     village: Village
@@ -78,31 +85,37 @@ export class Game {
         this.tabList = [this.labTab, this.vilTab, this.ordTab, this.travelTab]
         this.honor = new Unit("honor", "Honor", "Honor", this)
         this.honorInactive = new Unit("hoIna", "Inactive Honor", "Inactive Honor", this)
+        this.honor.prestige = true
+        this.honorInactive.prestige = true
 
         this.initResouces()
+        this.initMalus()
         this.initWorkers()
         this.initBuldings()
         this.initResearchs()
-
         this.init()
         this.allUnit.forEach(u => u.reloadProdTable())
 
-        // this.village = new Village("ciao", [Races[0]])
-        // this.village.kingOrders.push(new KingOrder("k1", [new Cost(this.food, new Decimal(15))], this))
-
-        this.village = Village.GenerateVillage(this)
+        this.village = new Village("Tutorial Village", [Races[0]])
+        this.village.kingOrders = [
+            new KingOrder("1", this.gold, this),
+            new KingOrder("2", this.metal, this)
+        ]
+        this.village.malus = []
 
         this.worldReset()
         this.initRace(Races[0])
         this.reloadAll()
         this.setRandomVillage(true)
 
+        this.goToWorld(this.village)
+
     }
 
     init() {
         this.food.unlocked = true
         this.mainLists.forEach(u => u.reload())
-        this.activeUnits = this.allUnit.filter(u => u.unlocked)
+        this.activeUnits = this.allUnit.filter(u => u.unlocked && !u.prestige)
         this.allArr = Array.from(this.allMap.values())
         this.productionTable.forEach(p => p.reload())
         this.reloadLists()
@@ -175,7 +188,7 @@ export class Game {
         this.reloadAll()
     }
     reloadAll() {
-        this.activeUnits = this.allUnit.filter(u => u.unlocked)
+        this.activeUnits = this.allUnit.filter(u => u.unlocked && !u.prestige)
         this.allUnit.forEach(u => u.avActions = u.actions.filter(a => a.unlocked))
         this.reload()
         this.reloadLists()
@@ -218,7 +231,7 @@ export class Game {
             p.product.unlocked = p.product.avabileThisWorld
             p.product.isNew = (!isN && p.product.unlocked) || p.product.isNew
         }))
-        this.activeUnits = this.allUnit.filter(u => u.unlocked)
+        this.activeUnits = this.allUnit.filter(u => u.unlocked && !u.prestige)
         this.activeUnits.forEach(u => {
             u.reloadProdTable()
             u.reloadBoost()
@@ -229,13 +242,13 @@ export class Game {
     }
 
     worldReset() {
-        this.allArr.forEach(b => {
+        this.allArr.filter(u => !u.prestige).forEach(b => {
             b.isNew = false
             b.avabileThisWorld = false
             b.quantity = new Decimal(0)
             b.unlocked = false
         })
-        this.allUnit.forEach(u => {
+        this.allUnit.filter(u => !u.prestige).forEach(u => {
             u.percentage = 100
             u.showUp = false
             u.totalPerSec = new Decimal(0)
@@ -243,6 +256,7 @@ export class Game {
             u.realtotalPerSec = new Decimal(0)
             u.notEnought = false
             u.actions.forEach(a => a.owned = false)
+            u.worldBonus = new Decimal(0)
         })
         this.productionTable.forEach(p => p.unlocked = p.defUnlocked)
         this.matList.list.forEach(mat => { mat.avabileThisWorld = true })
@@ -277,7 +291,35 @@ export class Game {
             this.nextVillage[i].id = "" + i
 
     }
+    goToWorld(village: Village) {
+        this.honor.quantity = this.honor.quantity.plus(this.honorInactive.quantity)
+        this.honorInactive.quantity = new Decimal(0)
+        this.worldReset()
+        this.village = village
+        if (village.level > 0)
+            this.tabList.forEach(t => t.unlocked = true)
+        this.village.avaiableRaces.forEach(r => this.initRace(r))
+        this.unlockUnits(this.village.startingStuff.map(t => t[0]))
+        this.village.startingStuff.forEach(st => st[0].quantity = st[1])
+        this.unlockUnits(this.village.avaiableStuff)
+        this.village.gainMulti.forEach(g => g[0].worldBonus = g[1])
 
+        village.malus.forEach(ma => {
+            const malusIndex = Malus.indexOf(ma)
+            if (malusIndex > -1) {
+                const malusListTemp = this.malusLists[malusIndex]
+                malusListTemp[0].quantity = village.level
+                if (village.level.greaterThanOrEqualTo(10)) {
+                    malusListTemp[1].quantity = Decimal.log10(village.level)
+                    if (village.level.greaterThanOrEqualTo(100))
+                        malusListTemp[2].quantity = Decimal.log10(malusListTemp[1].quantity)
+                }
+                this.unlockUnits(malusListTemp.filter(u => u.quantity > 0))
+            }
+        })
+    }
+
+    // region stuff
     initResouces() {
         this.food = new Unit("food", "Food", "Food descriptio", this)
         this.wood = new Unit("wood", "Wood", "Wood descriptio", this)
@@ -297,6 +339,24 @@ export class Game {
         // this.food.bonus.push(boostFood)
     }
     initWorkers() {
+        //    Templar
+        this.templar = new Unit("soldier", "Soldier", "Soldier description", this)
+        this.productionTable.push(new Production(this.templar, this.thief, new Decimal(-1), this))
+        this.productionTable.push(new Production(this.templar, this.zombie, new Decimal(-3), this))
+        this.templar.productionIndep = true
+        this.templar.createBuy([new Cost(this.food, new Decimal(10))])
+        this.templar.createBoost([new Cost(this.science, this.scienceCost1, this.expTeam)])
+        this.templar.createHire([new Cost(this.science, this.scienceCost1, this.expTeam)])
+
+        //    Soldier
+        this.soldier = new Unit("soldier", "Soldier", "Soldier description", this)
+        this.productionTable.push(new Production(this.soldier, this.thief, new Decimal(-1), this))
+        this.productionTable.push(new Production(this.soldier, this.zombie, new Decimal(-1), this))
+        this.soldier.productionIndep = true
+        this.soldier.createBuy([new Cost(this.food, new Decimal(10))])
+        this.soldier.createBoost([new Cost(this.science, this.scienceCost1, this.expTeam)])
+        this.soldier.createHire([new Cost(this.science, this.scienceCost1, this.expTeam)])
+
         //    Blacksmith
         this.blacksmith = new Unit("blacksmith", "Blacksmith", "Blacksmith description", this)
         this.productionTable.push(new Production(this.blacksmith, this.gold, new Decimal(1), this))
@@ -441,6 +501,7 @@ export class Game {
         // endregion
 
         // region bonus
+        // region active
         const calth = new Bonus("calth", "Call to Arms",
             "x10 gold from blacksmiths x forge; 20 sec",
             this, new Decimal(10), this.forge, false)
@@ -453,23 +514,40 @@ export class Game {
             "x10 food from hunters; 20 sec",
             this, new Decimal(10), null, false)
         bigHunt.createActiveAct(new Decimal(100), new Decimal(80))
-        const bigHuntRes = new Research("bHuRe", "Big Hunt",
-            "Make hunter more usefull; +100% food from hunters",
+        const bigHuntRes = new Research("bHuRe", bigHunt.name, bigHunt.description,
             [new Cost(this.science, new Decimal(1))], [bigHunt], this)
         this.hunter.producs[0].bonus.push(bigHunt)
+        // endregion
+        // region passive
+        const science1Bon = new Bonus("si1B", "Even Better Hunters",
+            "Make hunter even better; +100% food from hunters", this, new Decimal(1), null, true)
+        const science1Res = new Research("si1R", science1Bon.name, science1Bon.description,
+            [new Cost(this.science, new Decimal(2))], [science1Bon], this)
+        this.science.bonus.push(science1Bon)
 
-        const hunterBonus = new Bonus("bonBH", "Smart Hunters",
+        const hunterBonus2 = new Bonus("hb2B", "Even Better Hunters",
+            "Make hunter even better; +100% food from hunters", this, new Decimal(1), null, true)
+        const betterHunting2 = new Research("hb2R", hunterBonus2.name, hunterBonus2.description,
+            [new Cost(this.science, new Decimal(1))], [hunterBonus2], this)
+        this.hunter.producs[0].bonus.push(hunterBonus2)
+
+        const hunterBonus = new Bonus("bh1R", "Smart Hunters",
             "Make hunter more usefull; +100% food from hunters", this, new Decimal(1), null, true)
-        const betterHunting = new Research("betterHunting", "Smart Hunters",
-            "Make hunter more usefull; +100% food from hunters",
-            [new Cost(this.science, new Decimal(1))], [hunterBonus], this)
+        const betterHunting = new Research("bh1R", hunterBonus.name, hunterBonus.description,
+            [new Cost(this.science, new Decimal(1))], [hunterBonus, betterHunting2], this)
         this.hunter.producs[0].bonus.push(hunterBonus)
+        // endregion
         // endregion
 
         // region Buldings
+        const templarRes = new Research("orderRes", "Templars", "Templars",
+            [new Cost(this.science, new Decimal(10))], [this.templar], this)
+        const soldierRes = new Research("orderRes", "Soldiers", "Soldiers",
+            [new Cost(this.science, new Decimal(10))], [templarRes, this.soldier], this)
+
         const buldings = new Research("woodBRes", "Woodcutting Camp", "Woodcutting Camp",
             [new Cost(this.science, new Decimal(10))],
-            [calthRes, this.woodCamp, this.cave, this.huntCamp, this.university, this.mine, this.mageTower, this.forge], this)
+            [calthRes, this.woodCamp, this.cave, this.huntCamp, this.university, this.mine, this.mageTower, this.forge, soldierRes], this)
         // endregion
 
         // region Workers
@@ -483,14 +561,45 @@ export class Game {
             [new Cost(this.science, new Decimal(10))], [this.mage, this.mana, blackRes, bigHuntRes], this)
 
         const metalRes = new Research("meRe", "Metal", "Metal",
-            [new Cost(this.science, new Decimal(10))], [this.miner, this.metal, manaRes, betterHunting], this)
+            [new Cost(this.science, new Decimal(10))], [this.miner, this.metal, manaRes, science1Res], this)
 
         const stoneRes = new Research("stoRe", "Quarry", "Quarry",
-            [new Cost(this.science, new Decimal(10))], [this.quarrymen, this.stone, metalRes], this)
+            [new Cost(this.science, new Decimal(10))], [this.quarrymen, this.stone, metalRes, betterHunting], this)
 
         this.woodRes = new Research("woRe", "Woodcutting", "Woodcutting",
             [new Cost(this.science, new Decimal(10))], [this.lumberjack, this.wood, stoneRes], this)
         // endregion
     }
+    initMalus() {
+        // region    Thieves
+        this.thief = new Unit("thief", "Thief", "Thief descriptio", this)
+        this.masterThief = new Unit("msThief", "Thief", "Thief descriptio", this)
+        this.thiefGuild = new Unit("thiefGuild", "Thief", "Thief descriptio", this)
+        this.productionTable.push(new Production(this.thief, this.gold, new Decimal(-1), this))
+        this.productionTable.push(new Production(this.masterThief, this.thief, new Decimal(1), this))
+        this.productionTable.push(new Production(this.thiefGuild, this.masterThief, new Decimal(1), this))
+
+        const thievesTypeList = new TypeList("Thieves")
+        thievesTypeList.list = [this.thief, this.masterThief, this.thiefGuild]
+        this.thievesList = thievesTypeList.list
+        this.mainLists.push(thievesTypeList)
+        // endregion
+        // region    Zombie
+        this.zombie = new Unit("zombie", "Zombie", "Zombie descriptio", this)
+        this.lordZombie = new Unit("lordZombie", "Lord Zombie", "Lord Zombie descriptio", this)
+        this.zombieLich = new Unit("zombieLich", "Lich Zombie", "Lich Zombie descriptio", this)
+        this.productionTable.push(new Production(this.zombie, this.food, new Decimal(-1), this))
+        this.productionTable.push(new Production(this.lordZombie, this.zombie, new Decimal(1), this))
+        this.productionTable.push(new Production(this.zombieLich, this.lordZombie, new Decimal(1), this))
+
+        const zombieTypeList = new TypeList("Zombies")
+        zombieTypeList.list = [this.zombie, this.lordZombie, this.zombieLich]
+        this.zombieList = zombieTypeList.list
+        this.mainLists.push(zombieTypeList)
+        // endregion
+        this.malusLists = [this.zombieList, this.thievesList]
+        this.malusLists.forEach(l => l.forEach(m => m.alwaysOn = true))
+    }
+    // endregion
 
 }

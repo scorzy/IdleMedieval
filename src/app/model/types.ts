@@ -4,3 +4,4 @@ export const Malus = [
     "Zombies",
     "Thieves"
 ]
+

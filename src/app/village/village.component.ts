@@ -23,5 +23,8 @@ export class VillageComponent implements OnInit {
 
     ngOnInit() {
     }
+    found() {
+        this.gs.game.goToWorld(this.village)
+    }
 
 }

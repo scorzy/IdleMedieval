@@ -10,6 +10,7 @@ export class Base {
     alwaysOn = false
     isNew = false
     race = Races[0]
+    prestige = false
 
     constructor(
         public id: string,
@@ -26,9 +27,11 @@ export class Base {
         const data: any = {}
         data.i = this.id
         data.q = this.quantity
-        data.u = this.unlocked
-        data.z = this.avabileThisWorld
-        data.n = this.isNew
+        if (!this.prestige) {
+            data.u = this.unlocked
+            data.z = this.avabileThisWorld
+            data.n = this.isNew
+        }
         return data
     }
     load(data: any) {

@@ -9,7 +9,7 @@ export class Village {
 
     keep = false
     id = ""
-    level = new Decimal(1)
+    level = new Decimal(0)
 
     static GenerateVillage(game: Game): Village {
         const village = new Village()

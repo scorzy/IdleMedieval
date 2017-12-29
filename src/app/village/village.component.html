@@ -3,6 +3,8 @@
 </div>
 <div class="card-block">
     <div class="card-text">
+        <span>Level: {{village.level | format}}</span>
+        <br/>
         <span>Races:</span>
         <span *ngFor="let r of village.avaiableRaces">
             {{r}}
@@ -45,4 +47,7 @@
         </div>
 
     </div>
+</div>
+<div class="card-footer">
+    <button class="btn btn-sm btn-link" (click)="found()">Found</button>
 </div>

@@ -237,15 +237,17 @@ export class KingOrder extends Action {
         material: Unit,
         game: Game
     ) {
-        super("ko" + id, "King Order", "king Order",
+        super("ko" + id, "King Order", "Send stuff to the king",
             [new Cost(material, new Decimal(1E9), new Decimal(1E3))],
             game.honorInactive, game, false)
         this.showHide = false
         this.unlocked = true
+        this.name = material.name + " Order"
     }
     buy(number: Decimal = new Decimal(1)): boolean {
         if (super.buy(number)) {
-            this.unit.quantity = this.unit.quantity.plus(number)
+            this.game.honorInactive.quantity =
+            this.game.honorInactive.quantity.plus(10).plus(this.game.village.level.div(10))
             return true
         }
         return false
