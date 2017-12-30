@@ -1,4 +1,4 @@
-export const Races = ["Human"]
+export const Races = ["Human", "Mages"]
 
 export const Malus = [
     "Zombies",

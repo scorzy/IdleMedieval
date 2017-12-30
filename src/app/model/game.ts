@@ -87,10 +87,12 @@ export class Game {
     zombie: Unit; lordZombie: Unit; zombieLich: Unit; zombieList = new Array<Unit>()
     malusLists = new Array<Array<Unit>>()
     // endregion
-
+    // region Mages
+    mainGolemRes: Research; monk: Unit
+    // endregion
     village: Village
     nextVillage = new Array<Village>()
-
+    // region Methods
     constructor() {
         this.labTab = new Base("labTb", "", "", this)
         this.vilTab = new Base("vilTb", "", "", this)
@@ -110,11 +112,13 @@ export class Game {
         this.initBuldings()
         this.initOver()
         this.initResearchs()
+        this.initMages()
+
         this.initPrestige()
         this.init()
         this.allUnit.forEach(u => u.reloadProdTable())
 
-        this.village = new Village("Tutorial Village", [Races[0]])
+        this.village = new Village("Tutorial Village", [Races[0], Races[1]])
         this.village.kingOrders = [
             new KingOrder("1", this.gold, this),
             new KingOrder("2", this.metal, this)
@@ -124,6 +128,7 @@ export class Game {
         this.worldReset()
         this.initRace(Races[0])
         this.reloadAll()
+        Village.generatePreset(this)
         this.setRandomVillage(true)
 
         this.goToWorld(this.village, true)
@@ -226,7 +231,8 @@ export class Game {
             return false
 
         let ok = false
-        toUnlock.filter(u => u.avabileThisWorld && !u.unlocked).forEach(u => {
+        // u.avabileThisWorld &&
+        toUnlock.filter(u => !u.unlocked).forEach(u => {
             ok = ok || (!u.unlocked)
             u.unlocked = true
             u.isNew = true
@@ -290,6 +296,9 @@ export class Game {
                 this.unlockUnits([this.team1, this.woodRes, this.hunter])
                 this.hunter.quantity = new Decimal(1)
                 break
+            case Races[1]:
+                this.unlockUnits([this.monk, this.mainGolemRes])
+                break
         }
     }
     setMaxLevel() { }
@@ -342,6 +351,7 @@ export class Game {
             a.reloadStrings()
         }))
     }
+    // endregion
 
     // region stuff
     initResouces() {
@@ -365,7 +375,7 @@ export class Game {
         this.templar.productionIndep = true
         this.templar.createBuy([new Cost(this.food, new Decimal(200)), new Cost(this.gold, new Decimal(50))])
         this.templar.createBoost([new Cost(this.science, this.scienceCost1, this.expTeam)])
-        this.templar.createHire([new Cost(this.science, this.scienceCost1, this.expTeam)])
+        this.templar.createHire([new Cost(this.science, this.scienceCost1, this.expHire)])
 
         //    Soldier
         this.soldier = new Unit("soldier", "Soldier", "Soldier description", this)
@@ -374,7 +384,7 @@ export class Game {
         this.soldier.productionIndep = true
         this.soldier.createBuy([new Cost(this.food, new Decimal(100))])
         this.soldier.createBoost([new Cost(this.science, this.scienceCost1, this.expTeam)])
-        this.soldier.createHire([new Cost(this.science, this.scienceCost1, this.expTeam)])
+        this.soldier.createHire([new Cost(this.science, this.scienceCost1, this.expHire)])
 
         //    Blacksmith
         this.blacksmith = new Unit("blacksmith", "Blacksmith", "Blacksmith description", this)
@@ -382,7 +392,7 @@ export class Game {
         this.productionTable.push(new Production(this.blacksmith, this.metal, new Decimal(-4), this))
         this.blacksmith.createBuy([new Cost(this.food, new Decimal(30)), new Cost(this.metal, new Decimal(15))])
         this.blacksmith.createBoost([new Cost(this.science, this.scienceCost1, this.expTeam)])
-        this.blacksmith.createHire([new Cost(this.science, this.scienceCost1, this.expTeam)])
+        this.blacksmith.createHire([new Cost(this.science, this.scienceCost1, this.expHire)])
 
         //    Mage
         this.mage = new Unit("mage", "Mage", "Mage description", this)
@@ -391,7 +401,7 @@ export class Game {
         this.productionTable.push(new Production(this.mage, this.science, new Decimal(-1), this))
         this.mage.createBuy([new Cost(this.food, new Decimal(30))])
         this.mage.createBoost([new Cost(this.science, this.scienceCost1, this.expTeam)])
-        this.mage.createHire([new Cost(this.science, this.scienceCost1, this.expTeam)])
+        this.mage.createHire([new Cost(this.science, this.scienceCost1, this.expHire)])
 
         //    Miner
         this.miner = new Unit("miner", "Miner", "Miner description", this)
@@ -400,7 +410,7 @@ export class Game {
         this.productionTable.push(new Production(this.miner, this.wood, new Decimal(-2), this))
         this.miner.createBuy([new Cost(this.food, new Decimal(20)), new Cost(this.wood, new Decimal(10))])
         this.miner.createBoost([new Cost(this.science, this.scienceCost1, this.expTeam)])
-        this.miner.createHire([new Cost(this.science, this.scienceCost1, this.expTeam)])
+        this.miner.createHire([new Cost(this.science, this.scienceCost1, this.expHire)])
 
         //    Quarrymen
         this.quarrymen = new Unit("quar", "Quarrymen", "Quarrymen description", this)
@@ -409,7 +419,7 @@ export class Game {
         this.productionTable.push(new Production(this.quarrymen, this.wood, new Decimal(-1), this))
         this.quarrymen.createBuy([new Cost(this.food, new Decimal(20)), new Cost(this.wood, new Decimal(5))])
         this.quarrymen.createBoost([new Cost(this.science, this.scienceCost1, this.expTeam)])
-        this.quarrymen.createHire([new Cost(this.science, this.scienceCost1, this.expTeam)])
+        this.quarrymen.createHire([new Cost(this.science, this.scienceCost1, this.expHire)])
 
         //    Lumberjack
         this.lumberjack = new Unit("lumb", "Lumberjack", "Lumberjack description", this)
@@ -417,7 +427,7 @@ export class Game {
         this.productionTable.push(new Production(this.lumberjack, this.food, new Decimal(-2), this))
         this.lumberjack.createBuy([new Cost(this.food, new Decimal(20))])
         this.lumberjack.createBoost([new Cost(this.science, this.scienceCost1, this.expTeam)])
-        this.lumberjack.createHire([new Cost(this.science, this.scienceCost1, this.expTeam)])
+        this.lumberjack.createHire([new Cost(this.science, this.scienceCost1, this.expHire)])
 
         //    Student
         this.student = new Unit("student", "Student", "Student description", this)
@@ -426,7 +436,7 @@ export class Game {
         this.productionTable.push(new Production(this.student, this.science, new Decimal(1), this))
         this.productionTable.push(new Production(this.student, this.food, new Decimal(-2), this))
         this.student.createBoost([new Cost(this.science, this.scienceCost1, this.expTeam)])
-        this.student.createHire([new Cost(this.science, this.scienceCost1, this.expTeam)])
+        this.student.createHire([new Cost(this.science, this.scienceCost1, this.expHire)])
 
         //    Hunter
         this.hunter = new Unit("hunter", "Hunter", "Hunter description", this)
@@ -438,7 +448,7 @@ export class Game {
         buyHunter.unlocked = true
         this.hunter.actions.push(buyHunter)
         this.hunter.createBoost([new Cost(this.science, this.scienceCost1, this.expTeam)])
-        this.hunter.createHire([new Cost(this.science, this.scienceCost1, this.expTeam)])
+        this.hunter.createHire([new Cost(this.science, this.scienceCost1, this.expHire)])
 
         this.workList = new TypeList("Workers")
         this.workList.list.push(this.hunter, this.student, this.lumberjack, this.quarrymen, this.miner, this.mage, this.blacksmith)
@@ -451,56 +461,56 @@ export class Game {
         this.productionTable.push(new Production(this.forge, this.gold, new Decimal(-4), this))
         this.forge.createBuy([new Cost(this.wood, new Decimal(1E3)), new Cost(this.stone, new Decimal(2E3)),
         new Cost(this.metal, new Decimal(500))])
-        this.forge.createBoost([new Cost(this.science, this.scienceCost1, this.expTeam)])
-        this.forge.createHire([new Cost(this.science, this.scienceCost1, this.expTeam)])
+        this.forge.createBoost([new Cost(this.science, this.scienceCost2, this.expTeam)])
+        this.forge.createHire([new Cost(this.science, this.scienceCost2, this.expHire)])
 
         //    Mage Tower
         this.mageTower = new Unit("mageTower", "Mage Tower", "Mage Tower description", this)
         this.productionTable.push(new Production(this.mageTower, this.mage, new Decimal(1), this))
         this.productionTable.push(new Production(this.mageTower, this.gold, new Decimal(-4), this))
         this.mageTower.createBuy([new Cost(this.wood, new Decimal(1E3)), new Cost(this.stone, new Decimal(2E3))])
-        this.mageTower.createBoost([new Cost(this.science, this.scienceCost1, this.expTeam)])
-        this.mageTower.createHire([new Cost(this.science, this.scienceCost1, this.expTeam)])
+        this.mageTower.createBoost([new Cost(this.science, this.scienceCost2, this.expTeam)])
+        this.mageTower.createHire([new Cost(this.science, this.scienceCost2, this.expHire)])
 
         //    Mine
         this.mine = new Unit("mine", "Mine", "mine description", this)
         this.productionTable.push(new Production(this.mine, this.miner, new Decimal(1), this))
         this.productionTable.push(new Production(this.mine, this.gold, new Decimal(-4), this))
         this.mine.createBuy([new Cost(this.wood, new Decimal(1E3)), new Cost(this.stone, new Decimal(2E3))])
-        this.mine.createBoost([new Cost(this.science, this.scienceCost1, this.expTeam)])
-        this.mine.createHire([new Cost(this.science, this.scienceCost1, this.expTeam)])
+        this.mine.createBoost([new Cost(this.science, this.scienceCost2, this.expTeam)])
+        this.mine.createHire([new Cost(this.science, this.scienceCost2, this.expHire)])
 
         //    Cave
         this.cave = new Unit("cave", "Cave", "Cave description", this)
         this.productionTable.push(new Production(this.cave, this.quarrymen, new Decimal(1), this))
         this.productionTable.push(new Production(this.cave, this.gold, new Decimal(-4), this))
         this.cave.createBuy([new Cost(this.wood, new Decimal(1E3)), new Cost(this.stone, new Decimal(1E3))])
-        this.cave.createBoost([new Cost(this.science, this.scienceCost1, this.expTeam)])
-        this.cave.createHire([new Cost(this.science, this.scienceCost1, this.expTeam)])
+        this.cave.createBoost([new Cost(this.science, this.scienceCost2, this.expTeam)])
+        this.cave.createHire([new Cost(this.science, this.scienceCost2, this.expHire)])
 
         //    Wood Camp
         this.woodCamp = new Unit("woodCamp", "Wood Camp", "Wood Camp description", this)
         this.productionTable.push(new Production(this.woodCamp, this.lumberjack, new Decimal(1), this))
         this.productionTable.push(new Production(this.woodCamp, this.gold, new Decimal(-4), this))
         this.woodCamp.createBuy([new Cost(this.wood, new Decimal(1E3)), new Cost(this.stone, new Decimal(1E3))])
-        this.woodCamp.createBoost([new Cost(this.science, this.scienceCost1, this.expTeam)])
-        this.woodCamp.createHire([new Cost(this.science, this.scienceCost1, this.expTeam)])
+        this.woodCamp.createBoost([new Cost(this.science, this.scienceCost2, this.expTeam)])
+        this.woodCamp.createHire([new Cost(this.science, this.scienceCost2, this.expHire)])
 
         //    University
         this.university = new Unit("university", "University", "University description", this)
         this.productionTable.push(new Production(this.university, this.student, new Decimal(1), this))
         this.productionTable.push(new Production(this.university, this.gold, new Decimal(-4), this))
         this.university.createBuy([new Cost(this.wood, new Decimal(1E3)), new Cost(this.stone, new Decimal(1E3))])
-        this.university.createBoost([new Cost(this.science, this.scienceCost1, this.expTeam)])
-        this.university.createHire([new Cost(this.science, this.scienceCost1, this.expTeam)])
+        this.university.createBoost([new Cost(this.science, this.scienceCost2, this.expTeam)])
+        this.university.createHire([new Cost(this.science, this.scienceCost2, this.expHire)])
 
         //    Hunt Camp
         this.huntCamp = new Unit("huntCamp", "Hunt Camp", "Hunt Camp description", this)
         this.productionTable.push(new Production(this.huntCamp, this.hunter, new Decimal(1), this))
         this.productionTable.push(new Production(this.huntCamp, this.gold, new Decimal(-4), this))
         this.huntCamp.createBuy([new Cost(this.wood, new Decimal(1E3)), new Cost(this.stone, new Decimal(500))])
-        this.huntCamp.createBoost([new Cost(this.science, this.scienceCost1, this.expTeam)])
-        this.huntCamp.createHire([new Cost(this.science, this.scienceCost1, this.expTeam)])
+        this.huntCamp.createBoost([new Cost(this.science, this.scienceCost2, this.expTeam)])
+        this.huntCamp.createHire([new Cost(this.science, this.scienceCost2, this.expHire)])
 
         this.buildList = new TypeList("Buildings")
         this.buildList.list.push(this.huntCamp, this.university, this.woodCamp, this.cave, this.mine, this.mageTower, this.forge)
@@ -556,13 +566,13 @@ export class Game {
             company.createHire([new Cost(this.science, this.scienceCost5, this.expTeam)])
 
             building.buyAction.price.forEach(p => {
-                this.productionTable.push(new Production(master, p.what, p.basePrice.times(-1), this))
+                this.productionTable.push(new Production(master, p.what, p.basePrice.times(-0.2), this))
             })
             master.buyAction.price.forEach(p => {
-                this.productionTable.push(new Production(guild, p.what, p.basePrice.times(-1), this))
+                this.productionTable.push(new Production(guild, p.what, p.basePrice.times(-0.2), this))
             })
             guild.buyAction.price.forEach(p => {
-                this.productionTable.push(new Production(company, p.what, p.basePrice.times(-1), this))
+                this.productionTable.push(new Production(company, p.what, p.basePrice.times(-0.2), this))
             })
 
             this.masterList.list.push(master)
@@ -713,6 +723,124 @@ export class Game {
         this.hirePrestige.limit = new Decimal(20)
 
         this.prestigeGrups.push(new PrestigeGroupModel("bon", "Bonus", "Bonus desc", [this.teamPrestige, this.hirePrestige]))
+    }
+    initMages() {
+        const mageList = new TypeList("Mages"); this.mainLists.push(mageList)
+        const golemList = new TypeList("Golem"); this.mainLists.push(golemList)
+        const apprList = new TypeList("Apprentice"); this.mainLists.push(apprList)
+        const summonerList = new TypeList("Summoner"); this.mainLists.push(summonerList)
+        const masterList = new TypeList("Master Summoners"); this.mainLists.push(masterList)
+        const collegeList = new TypeList("College"); this.mainLists.push(collegeList)
+
+        const mainCollegeRes = new Research(")C", "Colleges", "Colleges",
+            [new Cost(this.science, new Decimal(5E8))],
+            [], this)
+        const mainMasterRes = new Research(")M", "Master", "Master",
+            [new Cost(this.science, new Decimal(5E6))],
+            [mainCollegeRes], this)
+        const mainSummonerRes = new Research(")S", "Summoners", "Summoners",
+            [new Cost(this.science, new Decimal(5E4))],
+            [mainMasterRes], this)
+        const mainApprenticeRes = new Research(")A", "Apprentices", "Apprentices",
+            [new Cost(this.science, new Decimal(2E3))],
+            [mainSummonerRes], this)
+        this.mainGolemRes = new Research(")G", "Golems", "Golems",
+            [new Cost(this.science, new Decimal(100))],
+            [mainApprenticeRes], this)
+
+        const golemMat = [this.wood, this.stone, this.metal]
+
+        this.monk = new Unit("Monk", "Monk", "Ora et labora", this)
+        this.productionTable.push(new Production(this.monk, this.food, new Decimal(1), this))
+        this.productionTable.push(new Production(this.monk, this.mana, new Decimal(1), this))
+        this.monk.createBuy([new Cost(this.food, new Decimal(50))])
+        this.monk.createBoost([new Cost(this.science, this.scienceCost1, this.expTeam)])
+        this.monk.createHire([new Cost(this.science, this.scienceCost1, this.expHire)])
+        mageList.list.push(this.monk)
+
+        golemMat.forEach(mat => {
+            const golem = new Unit(mat.id + "Gol", mat.name + " Golem", mat.name + " Golem", this)
+            this.productionTable.push(new Production(golem, mat, new Decimal(1), this))
+            this.productionTable.push(new Production(golem, this.mana, new Decimal(-0.1), this))
+            golem.createBuy([new Cost(this.mana, new Decimal(30))])
+            golem.createBoost([new Cost(this.science, this.scienceCost1, this.expTeam)])
+            golem.createHire([new Cost(this.science, this.scienceCost1, this.expHire)])
+            golemList.list.push(golem)
+
+            const appre = new Unit(mat.id + "Ap", mat.name + " Apr.", mat.name + " Apprentice", this)
+            this.productionTable.push(new Production(appre, golem, new Decimal(1), this))
+            this.productionTable.push(new Production(appre, this.mana, new Decimal(-30), this))
+            appre.createBuy([new Cost(this.food, new Decimal(500)), new Cost(this.mana, new Decimal(1E3))])
+            appre.createBoost([new Cost(this.science, this.scienceCost2, this.expTeam)])
+            appre.createHire([new Cost(this.science, this.scienceCost2, this.expHire)])
+            apprList.list.push(appre)
+
+            const summoner = new Unit(mat.id + "Su", mat.name + " Sum.", mat.name + " Summoner", this)
+            this.productionTable.push(new Production(summoner, appre, new Decimal(1), this))
+            appre.buyAction.price.forEach(a =>
+                this.productionTable.push(new Production(summoner, a.what, a.basePrice.times(-0.2), this))
+            )
+            summoner.createBuy([new Cost(golem, new Decimal(1E3))])
+            summoner.createBoost([new Cost(this.science, this.scienceCost3, this.expTeam)])
+            summoner.createHire([new Cost(this.science, this.scienceCost3, this.expHire)])
+            summonerList.list.push(summoner)
+
+            const master = new Unit(mat.id + "Ma-", mat.name + " M.", mat.name + " Master", this)
+            this.productionTable.push(new Production(master, summoner, new Decimal(1), this))
+            summoner.buyAction.price.forEach(a =>
+                this.productionTable.push(new Production(master, a.what, a.basePrice.times(-0.2), this))
+            )
+            master.createBuy([new Cost(appre, new Decimal(1E3))])
+            master.createBoost([new Cost(this.science, this.scienceCost4, this.expTeam)])
+            master.createHire([new Cost(this.science, this.scienceCost4, this.expHire)])
+            masterList.list.push(master)
+
+            const college = new Unit(mat.id + "Co-", mat.name + " C.", mat.name + " College", this)
+            this.productionTable.push(new Production(master, master, new Decimal(1), this))
+            master.buyAction.price.forEach(a =>
+                this.productionTable.push(new Production(college, a.what, a.basePrice.times(-0.2), this))
+            )
+            college.createBuy([new Cost(summoner, new Decimal(1E3))])
+            college.createBoost([new Cost(this.science, this.scienceCost5, this.expTeam)])
+            college.createHire([new Cost(this.science, this.scienceCost5, this.expHire)])
+            collegeList.list.push(college)
+
+            const golemRes = new Research(golem.id + "^", golem.name, golem.description,
+                [new Cost(this.science, new Decimal(200))], [golem], this)
+            const apprtRes = new Research(appre.id + "^", appre.name, appre.description,
+                [new Cost(this.science, new Decimal(1E3))], [appre], this)
+            const summRes = new Research(summoner.id + "^", summoner.name, summoner.description,
+                [new Cost(this.science, new Decimal(1E5))], [summoner], this)
+            const mastRes = new Research(master.id + "^", master.name, master.description,
+                [new Cost(this.science, new Decimal(1E7))], [master], this)
+            const collegeRes = new Research(college.id + "^", college.name, college.description,
+                [new Cost(this.science, new Decimal(1E9))], [college], this)
+
+            mainCollegeRes.toUnlock.push(collegeRes)
+            mainMasterRes.toUnlock.push(mastRes)
+            mainSummonerRes.toUnlock.push(summRes)
+            mainApprenticeRes.toUnlock.push(apprtRes)
+            this.mainGolemRes.toUnlock.push(golemRes)
+        })
+
+        const manaRegen = new Bonus("manaRegen", "Mana Regen",
+            "x10 mana; 40 sec",
+            this, new Decimal(10), null, false)
+        manaRegen.createActiveAct(new Decimal(1), new Decimal(160))
+        const manaRegenRes = new Research("manaRegenRes", manaRegen.name, manaRegen.description,
+            [new Cost(this.science, new Decimal(1))], [manaRegen], this)
+        this.mana.bonus.push(manaRegen)
+        this.mainGolemRes.toUnlock.push(manaRegenRes)
+
+        const empowerGolem = new Bonus("emGoB", "Empower Golem",
+            "x10 from golem; 40 sec",
+            this, new Decimal(10), null, false)
+        empowerGolem.createActiveAct(new Decimal(1E3), new Decimal(160))
+        const empowerGolemRes = new Research("emGoRe", empowerGolem.name, empowerGolem.description,
+            [new Cost(this.science, new Decimal(1))], [empowerGolem], this)
+        golemList.list.forEach(g => g.producs[0].bonus.push(empowerGolem))
+        mainApprenticeRes.toUnlock.push(empowerGolem)
+
     }
     // endregion
 

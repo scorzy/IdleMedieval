@@ -19,7 +19,7 @@ export class SaveComponent implements OnInit {
 
     save(event: Event) { this.service.save(false) }
     load(event: Event) { this.service.load() }
-    clear(event: Event) { this.service.clear() }
+    clear(event: Event) { this.service.clear() ; this.open = false }
 
     export(event: Event) {
         this.stringSave = this.service.export()

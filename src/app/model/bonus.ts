@@ -45,6 +45,6 @@ export class Bonus extends Base {
     }
 
     createActiveAct(mana: Decimal, tick: Decimal) {
-        this.activeAction = new ActiveBonus([new Cost(this.game.mana, mana, new Decimal(1))], this, this.game, tick)
+        this.activeAction = new ActiveBonus([new Cost(this.game.mana, mana, new Decimal(1.1))], this, this.game, tick)
     }
 }

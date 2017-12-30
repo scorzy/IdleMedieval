@@ -41,7 +41,7 @@ export class PrestigeGroupComponent implements OnInit, OnDestroy {
     ngOnDestroy() {
         this.paramsSub.unsubscribe()
     }
-    getRestId(index, p: Prestige) {
+    getId(index, p: Prestige) {
         return p.getId()
     }
 

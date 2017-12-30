@@ -5,6 +5,10 @@ import { Races, Malus } from './types'
 import { Cost } from 'app/model/cost'
 import { KingOrder } from 'app/model/action'
 import * as Decimal from 'break_infinity.js'
+
+export const VillagePrefix = new Array<Village>()
+export const VillageTypes = new Array<Village>()
+
 export class Village {
 
     keep = false
@@ -13,6 +17,10 @@ export class Village {
 
     static GenerateVillage(game: Game): Village {
         const village = new Village()
+
+        const prefix = VillagePrefix[Math.floor(Math.random() * VillagePrefix.length)]
+        village.gainMulti = prefix.gainMulti
+
         //    Bonus and Malus
         village.avaiableRaces.push(Races[Math.floor(Math.random() * Races.length)])
         village.malus.push(Malus[Math.floor(Math.random() * Malus.length)])
@@ -36,7 +44,6 @@ export class Village {
         public kingOrders: Array<KingOrder> = new Array<KingOrder>(),
         public malus: Array<string> = new Array<string>()
     ) {
-
     }
 
     getSave() {
@@ -85,6 +92,26 @@ export class Village {
             })
         if (data.vm)
             this.avaiableRaces = data.vm
+    }
+
+    // tslint:disable-next-line:member-ordering
+    static generatePreset(game: Game) {
+        VillagePrefix.push(
+            new Village("Hot", [], [], [],
+                [[game.food, new Decimal(3)]]),
+            new Village("Wooded", [], [], [],
+                [[game.wood, new Decimal(3)]]),
+            new Village("Petrified", [], [], [],
+                [[game.stone, new Decimal(3)]]),
+            new Village("Metallic", [], [], [],
+                [[game.metal, new Decimal(3)]]),
+            new Village("Scientific", [], [], [],
+                [[game.science, new Decimal(3)]]),
+            new Village("Magic", [], [], [],
+                [[game.mana, new Decimal(3)]]),
+            new Village("Rich", [], [], [],
+                [[game.gold, new Decimal(3)]])
+        )
     }
 
 }
