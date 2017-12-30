@@ -9,7 +9,27 @@
             "outDir": "dist",
             "assets": [
                 "images",
-                "favicon.ico"
+                "favicon.ico",
+                {
+                    "glob": "clr-ui.min.css",
+                    "input": "../node_modules/@clr/ui/",
+                    "output": "./"
+                },
+                {
+                    "glob": "theme.css",
+                    "input": "../node_modules/primeng/resources/themes/start/",
+                    "output": "./start.css"
+                },
+                {
+                    "glob": "clr-ui-dark.min.css",
+                    "input": "../node_modules/@clr/ui/",
+                    "output": "./"
+                },
+                {
+                    "glob": "theme.css",
+                    "input": "../node_modules/primeng/resources/themes/darkness/",
+                    "output": "./darkness.css"
+                }
             ],
             "index": "index.html",
             "main": "main.ts",
@@ -19,10 +39,8 @@
             "mobile": false,
             "styles": [
                 "../node_modules/font-awesome/css/font-awesome.min.css",
-                "../node_modules/primeng/resources/themes/darkness/theme.css",
                 "../node_modules/primeng/resources/primeng.min.css",
                 "../node_modules/@clr/icons/clr-icons.min.css",
-                "../node_modules/@clr/ui/clr-ui-dark.min.css",
                 "styles.css"
             ],
             "scripts": [

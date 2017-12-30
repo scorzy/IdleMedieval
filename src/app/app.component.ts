@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { ServService } from 'app/serv.service';
+import { TypeList } from 'app/model/typeList';
 
 @Component({
     selector: 'my-app',
@@ -8,10 +9,21 @@ import { ServService } from 'app/serv.service';
     styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
+    percentPreset = [100, 90, 80, 70, 60, 50, 40, 30, 20, 10, 0]
+
     constructor(private router: Router,
         public gameService: ServService) {
     }
+    all100() {
+        this.gameService.game.allUnit.forEach(u => u.percentage = 100)
+    }
+    getListId(index, list: TypeList) {
+        return list.getId()
+    }
     getClass() {
-        return "header-5"
+        return "header-" + this.gameService.options.header
+    }
+    noNew() {
+        this.gameService.game.allUnit.forEach(u => u.isNew = false)
     }
 }

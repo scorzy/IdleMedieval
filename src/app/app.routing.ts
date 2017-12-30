@@ -1,3 +1,4 @@
+import { OptionsComponent } from './options/options.component';
 import { CurVillComponent } from './cur-vill/cur-vill.component';
 import { OrdersComponent } from './orders/orders.component';
 import { VillageComponent } from './village/village.component';
@@ -10,6 +11,7 @@ import { HomeComponent } from './home/home.component'
 import { UnitComponent } from './unit/unit.component'
 import { LabComponent } from 'app/lab/lab.component';
 import { TravelComponent } from 'app/travel/travel.component';
+import { UiComponent } from 'app/ui/ui.component';
 
 export const ROUTES: Routes = [
     { path: '', redirectTo: 'home', pathMatch: 'full' },
@@ -23,8 +25,14 @@ export const ROUTES: Routes = [
     { path: 'vil', component: CurVillComponent },
     { path: 'ord', component: OrdersComponent },
     { path: 'travel', component: TravelComponent },
-    { path: 'save', component: SaveComponent },
-    { path: 'about', component: AboutComponent }
+    {
+        path: 'options', component: OptionsComponent,
+        children: [
+            { path: 'save', component: SaveComponent },
+            { path: 'ui', component: UiComponent },
+            { path: 'about', component: AboutComponent }
+        ]
+    }
 ];
 
 export const ROUTING: ModuleWithProviders = RouterModule.forRoot(ROUTES, { useHash: true });

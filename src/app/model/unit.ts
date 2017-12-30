@@ -33,6 +33,7 @@ export class Unit extends Base {
     worldBonus = new Decimal(0)
 
     productionIndep = false
+    malus = false
 
     constructor(
         id: string,

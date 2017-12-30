@@ -1,4 +1,27 @@
-<div class="form-group">
+<h1>Save</h1>
+<div>
+  <p>
+    Game autosaves every minute. You can also maually save, load and export savegames. Saves are stored
+    in localstorage.
+  </p>
+  <strong>Clear button deletes everything !</strong>
+
+  <div class="form-group">
     <button class="btn btn-success" (click)="save($event)">Save</button>
     <button class="btn btn-primary" (click)="load($event)">Load</button>
+    <button class="btn btn-danger" (click)="clear($event)">Clear</button>
+  </div>
+  <div class="form-group">
+    <h5>Export / Import Save</h5>
+    <label for="save">Save</label>
+    <textarea ref-textarea class="form-control" rows="1" id="save" [(ngModel)]="stringSave"></textarea>
+    <button class="btn btn-success" (click)="export($event)">Export</button>
+    <button class="btn btn-primary" (click)="import($event)">Import</button>
+  </div>
+  <div class="toggle-switch">
+    <input type="checkbox" id="toggle_1" [(ngModel)]="service.options.hsn">
+    <label for="toggle_1">Hide success save notification</label>
+  </div>
+  <br/>
+  <span>Version: {{service.game.gameVersion}}</span>
 </div>

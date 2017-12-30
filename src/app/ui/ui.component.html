@@ -1,0 +1,38 @@
+<form>
+
+    <section class="form-block">
+        <label>Ui options</label>
+
+        <div class="form-group">
+            <div class="toggle-switch">
+                <input name="dark" type="checkbox" id="toggle_1" [(ngModel)]="gameService.options.dark" (change)="setCss()">
+                <label for="toggle_1">Use Dark theme</label>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="selects_1">Header color</label>
+            <div class="select">
+                <select name="header" id="selects_1" [(ngModel)]="gameService.options.header">
+                    <option [class.darkFix]="gameService.options.dark">1</option>
+                    <option [class.darkFix]="gameService.options.dark">2</option>
+                    <option [class.darkFix]="gameService.options.dark">3</option>
+                    <option [class.darkFix]="gameService.options.dark">4</option>
+                    <option [class.darkFix]="gameService.options.dark">5</option>
+                    <option [class.darkFix]="gameService.options.dark">6</option>
+                    <option [class.darkFix]="gameService.options.dark">7</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <div class="toggle-switch">
+                    <input type="checkbox" id="format" name="format" [(ngModel)]="gameService.options.usaFormat">
+                    <label for="format">Alternative number format</label>
+                </div>
+            </div>
+
+        </div>
+
+    </section>
+
+</form>

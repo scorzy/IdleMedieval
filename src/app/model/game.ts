@@ -14,6 +14,8 @@ import { Village } from 'app/model/village'
 import * as Decimal from 'break_infinity.js'
 
 export class Game {
+    gameVersion = "0.0.0"
+
     researchsObs: EventEmitter<number> = new EventEmitter<number>()
 
     allMap = new Map<string, Base>()
@@ -226,11 +228,12 @@ export class Game {
         if (!ok)
             return false
 
-        this.allUnit.filter(u => u.unlocked).forEach(u2 => u2.producs.forEach(p => {
-            const isN = p.product.unlocked
-            p.product.unlocked = p.product.avabileThisWorld
-            p.product.isNew = (!isN && p.product.unlocked) || p.product.isNew
-        }))
+        this.allUnit.filter(u => u.unlocked)
+            .forEach(u2 => u2.producs.filter(pro => !pro.product.malus).forEach(p => {
+                const isN = p.product.unlocked
+                p.product.unlocked = p.product.avabileThisWorld
+                p.product.isNew = (!isN && p.product.unlocked) || p.product.isNew
+            }))
         this.activeUnits = this.allUnit.filter(u => u.unlocked && !u.prestige)
         this.activeUnits.forEach(u => {
             u.reloadProdTable()
@@ -598,7 +601,10 @@ export class Game {
         this.mainLists.push(zombieTypeList)
         // endregion
         this.malusLists = [this.zombieList, this.thievesList]
-        this.malusLists.forEach(l => l.forEach(m => m.alwaysOn = true))
+        this.malusLists.forEach(l => l.forEach(m => {
+            m.alwaysOn = true
+            m.malus = true
+        }))
     }
     // endregion
 

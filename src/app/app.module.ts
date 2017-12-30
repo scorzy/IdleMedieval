@@ -23,6 +23,8 @@ import { CurVillComponent } from './cur-vill/cur-vill.component';
 import { TravelComponent } from './travel/travel.component';
 import { GrowlModule } from 'primeng/primeng';
 import { PrestigeNavComponent } from './prestige-nav/prestige-nav.component';
+import { OptionsComponent } from './options/options.component';
+import { UiComponent } from './ui/ui.component';
 
 @NgModule({
     declarations: [
@@ -40,7 +42,9 @@ import { PrestigeNavComponent } from './prestige-nav/prestige-nav.component';
         OrdersComponent,
         CurVillComponent,
         TravelComponent,
-        PrestigeNavComponent
+        PrestigeNavComponent,
+        OptionsComponent,
+        UiComponent
     ],
     imports: [
         BrowserAnimationsModule,

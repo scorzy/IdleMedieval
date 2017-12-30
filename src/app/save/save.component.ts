@@ -1,5 +1,5 @@
 import { ServService } from './../serv.service';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, HostBinding } from '@angular/core';
 
 @Component({
     selector: 'app-save',
@@ -7,13 +7,25 @@ import { Component, OnInit } from '@angular/core';
     styleUrls: ['./save.component.scss']
 })
 export class SaveComponent implements OnInit {
+    @HostBinding('class.content-area') className = 'content-area'
+
+    stringSave = ""
 
     constructor(public service: ServService) { }
 
     ngOnInit() {
     }
 
-    save(event: Event) { this.service.save() }
+    save(event: Event) { this.service.save(false) }
     load(event: Event) { this.service.load() }
+    clear(event: Event) { this.service.clear() }
+
+    export(event: Event) {
+        this.stringSave = this.service.game.getSave()
+    }
+
+    import(event: Event) {
+        this.service.import(this.stringSave.trim())
+    }
 
 }
