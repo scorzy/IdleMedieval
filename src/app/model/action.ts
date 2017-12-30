@@ -147,9 +147,13 @@ export class Research extends Action {
         description: string,
         cost: Cost[],
         public toUnlock: Base[],
-        game: Game) {
+        game: Game,
+        times: Decimal = null) {
         super(id, name, description, cost, null, game)
-        this.oneTime = true
+        if (!times)
+            this.oneTime = true
+        else
+            this.limit = times
         this.showHide = false
         game.resList.push(this)
     }
@@ -161,6 +165,10 @@ export class Research extends Action {
             return true
         }
         return false
+    }
+
+    completed(): boolean {
+        return (this.owned && !this.limit) || (this.limit && this.quantity.greaterThanOrEqualTo(this.limit))
     }
 
 }

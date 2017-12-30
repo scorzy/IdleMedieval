@@ -16,8 +16,10 @@ export class ServService {
     constructor(public toastr: ToastsManager
     ) {
         this.game = new Game()
-        setInterval(this.update.bind(this), 249)    // 250
+        this.load()
+        setInterval(this.update.bind(this), 62)    // 250
         setInterval(this.save.bind(this), 60000)
+
     }
 
     update() {

@@ -36,8 +36,8 @@ export class LabComponent implements OnInit, OnDestroy {
 
     onChange() {
         if (this.resDone)
-            this.resList = this.gameService.game.resList.filter(r => r.unlocked && r.owned)
+            this.resList = this.gameService.game.resList.filter(r => r.unlocked && r.completed())
         else
-            this.resList = this.gameService.game.resList.filter(r => r.unlocked && !r.owned)
+            this.resList = this.gameService.game.resList.filter(r => r.unlocked && !r.completed())
     }
 }
