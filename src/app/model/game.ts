@@ -121,8 +121,6 @@ export class Game {
         this.reloadAll()
         this.setRandomVillage(true)
 
-        this.honor.quantity = new Decimal(1E10)
-
         this.goToWorld(this.village, true)
 
         this.matList.list.forEach(m => m.quantity = new Decimal(1E20))

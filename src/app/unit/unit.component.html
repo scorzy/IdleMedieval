@@ -29,7 +29,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr *ngFor="let item of gen.producsActive" [ngClass]="{'alert alert-warning no-alert': item.efficiency < 0}">
+                        <tr *ngFor="let item of gen.producsActive" [ngClass]="{'alert alert-warning no-alert': item.rateo.lessThan(0)}">
                             <td class="w-33 text-capitalize">
                                 <a [routerLink]="['/home/'+item.product.id]">{{item.product.name}}</a>
                             </td>
@@ -62,7 +62,7 @@
                             </tr>
                         </tfoot>
                         <tbody>
-                            <tr *ngFor="let item of gen.madeByActive; trackBy:getUnitId" [ngClass]="{'alert alert-warning no-alert': item.efficiency <0}">
+                            <tr *ngFor="let item of gen.madeByActive; trackBy:getUnitId" [ngClass]="{'alert alert-warning no-alert': item.rateo.lessThan(0)}">
                                 <td class="text-capitalize">
                                     <a [routerLink]="['/home/'+item.productor.id]">{{item.productor.name}}</a>
                                 </td>

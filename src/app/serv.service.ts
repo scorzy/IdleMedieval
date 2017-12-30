@@ -5,15 +5,16 @@ import * as LZString from 'lz-string';
 import { ClarityIcons } from '@clr/icons';
 import { Message } from 'primeng/components/common/api';
 import { GrowlModule } from 'primeng/primeng';
+import { ToastsManager } from 'ng2-toastr';
 
 @Injectable()
 export class ServService {
 
     game: Game
-    msgs: Message[] = [];
     options = new Options()
 
-    constructor() {
+    constructor(public toastr: ToastsManager
+    ) {
         this.game = new Game()
         setInterval(this.update.bind(this), 249)    // 250
         setInterval(this.save.bind(this), 60000)
@@ -37,12 +38,9 @@ export class ServService {
                 this.options.load(save.opti)
                 this.options.apply()
             }
-            this.msgs.push({ severity: 'success', summary: 'Game loaded', detail: "" })
+            this.toastr.success("", "Game Loaded")
         } else {
-            this.msgs.push({
-                severity: 'error', summary: 'Load error:',
-                detail: "Nothing to load"
-            })
+            this.toastr.error("No savegame found", "Error")
         }
     }
 
@@ -52,12 +50,12 @@ export class ServService {
                 const raw = this.export()
                 localStorage.setItem('save', raw)
                 if (!timer || (timer && !this.options.hsn))
-                    this.msgs.push({ severity: 'success', summary: 'Save done', detail: "" })
+                    this.toastr.success("", 'Game Saved')
             } else {
-                this.msgs.push({ severity: 'error', summary: 'Save error:', detail: "Cannot acces localstorage" })
+                this.toastr.warning("Canot access local storage", "Not saved")
             }
         } catch (ex) {
-            this.msgs.push({ severity: 'error', summary: 'Save error:', detail: ex && ex.message ? ex.message : "unknow error" })
+            this.toastr.error(ex && ex.message ? ex.message : "unknow error", "Saving Error")
         }
     }
     load() {
@@ -65,9 +63,11 @@ export class ServService {
             if (typeof (Storage) !== 'undefined') {
                 const saveRaw = localStorage.getItem('save')
                 this.import(saveRaw)
+            } else {
+                this.toastr.warning("Cannot access localstorage", "Not Loaded")
             }
         } catch (ex) {
-            this.msgs.push({ severity: 'error', summary: 'Load error:', detail: ex && ex.message ? ex.message : "unknow error" })
+            this.toastr.error(ex && ex.message ? ex.message : "unknow error", "Load Error")
         }
     }
     clear() {

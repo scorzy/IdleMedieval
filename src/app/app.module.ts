@@ -1,3 +1,4 @@
+import { ToastOptions } from 'ng2-toastr/ng2-toastr';
 import { ServService } from 'app/serv.service';
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 import { BrowserModule } from '@angular/platform-browser';
@@ -21,12 +22,21 @@ import { VillageComponent } from './village/village.component';
 import { OrdersComponent } from './orders/orders.component';
 import { CurVillComponent } from './cur-vill/cur-vill.component';
 import { TravelComponent } from './travel/travel.component';
-import { GrowlModule } from 'primeng/primeng';
 import { PrestigeNavComponent } from './prestige-nav/prestige-nav.component';
 import { OptionsComponent } from './options/options.component';
 import { UiComponent } from './ui/ui.component';
 import { PrestigeGroupComponent } from './prestige-group/prestige-group.component';
 import { SpellTabComponent } from './spell-tab/spell-tab.component';
+import { ToastModule } from 'ng2-toastr/src/toast.module';
+
+export class CustomOptions extends ToastOptions {
+    animate = 'fade'
+    dismiss = 'auto'
+    showCloseButton = true
+    newestOnTop = true
+    enableHTML = true
+    positionClass = 'toast-bottom-right'
+}
 
 @NgModule({
     declarations: [
@@ -58,9 +68,9 @@ import { SpellTabComponent } from './spell-tab/spell-tab.component';
         ClarityModule,
         ROUTING,
         SliderModule,
-        GrowlModule
+        ToastModule.forRoot(),
     ],
-    providers: [ServService],
+    providers: [{ provide: ToastOptions, useClass: CustomOptions }, ServService],
     bootstrap: [AppComponent]
 })
 export class AppModule {
