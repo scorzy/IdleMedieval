@@ -23,15 +23,19 @@
                     <option [class.darkFix]="gameService.options.dark">7</option>
                 </select>
             </div>
-
-            <div class="form-group">
-                <div class="toggle-switch">
-                    <input type="checkbox" id="format" name="format" [(ngModel)]="gameService.options.usaFormat">
-                    <label for="format">Alternative number format</label>
-                </div>
-            </div>
-
         </div>
+
+        <div class="form-group">
+            <div class="toggle-switch">
+                <input type="checkbox" id="format" name="format" [(ngModel)]="gameService.options.usaFormat">
+                <label for="format">Alternative number format</label>
+            </div>
+            <div class="toggle-switch">
+                <input type="checkbox" id="spells" name="spells" [(ngModel)]="gameService.options.spellSide">
+                <label for="spells">Spell Sidebar</label>
+            </div>
+        </div>
+
 
     </section>
 

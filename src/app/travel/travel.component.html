@@ -1,5 +1,9 @@
 <div class="content-area">
-    <h1>Travel to a new Village</h1>
+    <h1>Found a new Village</h1>
+    <h4 class="no-mg-top">Honor gain: {{ss.game.honorInactive.quantity | format}}</h4>
+    <p class="no-mg-top">
+        You can found a new village anytime. By found a new village you will lose everything expept honor upgrade.
+    </p>
 
     <div class="card-columns card-columns-3">
         <app-village [village]="vil" *ngFor="let vil of ss.game.nextVillage"></app-village>

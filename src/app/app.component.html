@@ -13,6 +13,9 @@
             <a class="nav-link" class="nav-link nav-text" routerLinkActive="active" routerLink="/lab" *ngIf="gameService.game.labTab.unlocked">
                 <clr-icon shape="library"></clr-icon>
             </a>
+            <a class="nav-link" class="nav-link nav-text" routerLinkActive="active" routerLink="/spell" *ngIf="gameService.game.spellTab.unlocked">
+                <clr-icon shape="flame"></clr-icon>
+            </a>
             <a class="nav-link" class="nav-link nav-text" routerLinkActive="active" routerLink="/vil" *ngIf="gameService.game.vilTab.unlocked">
                 <clr-icon shape="home"></clr-icon>
             </a>
@@ -21,6 +24,9 @@
             </a>
             <a class="nav-link" class="nav-link nav-text" routerLinkActive="active" routerLink="/travel" *ngIf="gameService.game.travelTab.unlocked">
                 <clr-icon shape="world"></clr-icon>
+            </a>
+            <a class="nav-link" class="nav-link nav-text" routerLinkActive="active" routerLink="/prest" *ngIf="gameService.game.prestTab.unlocked">
+                <clr-icon shape="angle-double"></clr-icon>
             </a>
         </div>
         <div class="header-actions">

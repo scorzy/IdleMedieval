@@ -1,8 +1,9 @@
-import { Component, HostBinding } from "@angular/core";
-import { ServService } from "app/serv.service";
-import { TypeList } from "app/model/typeList";
-import { Base } from "app/model/base";
+import { Component, HostBinding } from "@angular/core"
+import { ServService } from "app/serv.service"
+import { TypeList } from "app/model/typeList"
+import { Base } from "app/model/base"
 import * as Decimal from 'break_infinity.js'
+
 @Component({
     styleUrls: ['./home.component.scss'],
     templateUrl: './home.component.html',

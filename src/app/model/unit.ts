@@ -72,6 +72,11 @@ export class Unit extends Base {
             this.buyAction.quantity.times(0.005)
                 .times(this.boostAction ? this.boostAction.quantity.plus(1) : new Decimal(1))
             : new Decimal(0)
+
+        // prestige
+        if (this.game.teamPrestige.quantity.greaterThanOrEqualTo(1))
+            this.boost = this.boost.times(this.game.teamPrestige.quantity.times(0.2).plus(1))
+
     }
     reloadProdTable() {
         this.producsActive = this.producs.filter(p => p.unlocked && p.productor.unlocked)

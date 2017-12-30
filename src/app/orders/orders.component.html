@@ -1,5 +1,9 @@
 <div class="content-area">
-    <h1>Complete orders to get honor.</h1>
+    <h1>Complete orders to get honor</h1>
+    <h4 class="no-mg-top">Inactive Honor: {{gameServer.game.honorInactive.quantity | format}}</h4>
+    <p class="no-mg-top">
+        Inactive Honor will become Honor when founding a new village.
+    </p>
     <div class="card-columns card-columns-3">
         <app-action [action]="res" *ngFor="let res of gameServer.game.village.kingOrders"></app-action>
     </div>

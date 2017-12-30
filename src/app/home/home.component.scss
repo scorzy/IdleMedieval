@@ -8,27 +8,32 @@ $height: 24px;
 }
 
 .clr-vertical-nav {
-   width: 290px !important;
-   padding-top: 12px;
+    width: 290px !important;
+    padding-top: 12px;
 }
 
-.resName{
-  display: inline-block;
-  width: 50%;
-}
-.perSec{
-  width: 25%;
-  display: inline-block;
+.resName {
+    display: inline-block;
+    width: 50%;
 }
 
-.unit-group{
-  margin-left: -35px !important;
+.perSec {
+    width: 25%;
+    display: inline-block;
 }
 
-.experience{
-  margin-left: 30px !important;
+.unit-group {
+    margin-left: -35px !important;
 }
 
-.clr-treenode-link{
-  height:auto;
+.experience {
+    margin-left: 30px !important;
+}
+
+.clr-treenode-link {
+    height: auto;
+}
+
+:host /deep/ .clr-treenode-children {
+    margin-left: .4rem !important;
 }

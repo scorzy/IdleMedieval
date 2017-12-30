@@ -17,6 +17,7 @@ export class Action extends Base {
     show = true
     owned = false
     canBuy = false
+    limit = null
 
     numberformat = numberformat
     buyString1 = ""
@@ -66,6 +67,10 @@ export class Action extends Base {
                     ).plus(1).log(p.increment))
                 )
             }
+
+            if (this.limit)
+                max = Decimal.min(max, this.limit.minus(this.quantity))
+
             this.maxBuy = max
             this.canBuy = this.maxBuy.greaterThanOrEqualTo(1)
             if (this.oneTime && this.canBuy)
@@ -198,6 +203,16 @@ export class HireAction extends Action {
         this.showHide = true
         this.unlocked = false
     }
+    buy(number: Decimal = new Decimal(1)): boolean {
+        if (super.buy(number)) {
+            this.unit.quantity = this.unit.quantity.plus(this.unit.buyAction.quantity
+                .times(number)
+                .times(this.game.hirePrestige.quantity.div(20))
+            )
+            return true
+        }
+        return false
+    }
 }
 
 export class ActiveBonus extends Action {
@@ -247,7 +262,7 @@ export class KingOrder extends Action {
     buy(number: Decimal = new Decimal(1)): boolean {
         if (super.buy(number)) {
             this.game.honorInactive.quantity =
-            this.game.honorInactive.quantity.plus(10).plus(this.game.village.level.div(10))
+                this.game.honorInactive.quantity.plus(10).plus(this.game.village.level.div(10))
             return true
         }
         return false
@@ -267,5 +282,28 @@ export class KingOrder extends Action {
                 if (what)
                     this.price.push(new Cost(what, new Decimal(co[1]), new Decimal(co[2])))
             })
+    }
+}
+
+export class Prestige extends Action {
+    constructor(
+        id: string,
+        name, description,
+        game: Game,
+        honor = new Decimal(10),
+        public unit: Unit = null
+    ) {
+        super("*" + id, name, description, [new Cost(game.honor, honor, new Decimal(1.2))], null, game)
+        this.unlocked = true
+        this.prestige = true
+        this.showHide = false
+    }
+    buy(number: Decimal = new Decimal(1)): boolean {
+        const ret = super.buy(number)
+        this.game.prestigeGrups.forEach(p => p.actions.forEach(a => {
+            a.reloadMaxBuy()
+            a.reloadStrings()
+        }))
+        return ret
     }
 }

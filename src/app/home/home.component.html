@@ -36,4 +36,4 @@
 </clr-vertical-nav>
 
 <router-outlet></router-outlet>
-<app-spell-list></app-spell-list>
+<app-spell-list *ngIf="gameService.options.spellSide"></app-spell-list>

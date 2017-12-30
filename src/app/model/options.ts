@@ -6,6 +6,7 @@ export class Options {
     public dark = false
     public usaFormat = false
     public hsn = false
+    public spellSide = false
 
     constructor(
     ) { }
@@ -16,15 +17,14 @@ export class Options {
     load(data: any) {
         if (data.header)
             this.header = data.header
-
         if (data.dark)
             this.dark = data.dark
-
         if (data.usaFormat)
             this.usaFormat = data.usaFormat
-
         if (data.hsn)
             this.hsn = data.hsn
+        if (data.spellSide)
+            this.spellSide = data.spellSide
     }
 
 }

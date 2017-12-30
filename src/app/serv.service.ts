@@ -15,7 +15,7 @@ export class ServService {
 
     constructor() {
         this.game = new Game()
-        setInterval(this.update.bind(this), 250)    // 250
+        setInterval(this.update.bind(this), 249)    // 250
         setInterval(this.save.bind(this), 60000)
     }
 

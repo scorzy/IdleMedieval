@@ -10,6 +10,7 @@ export class SaveComponent implements OnInit {
     @HostBinding('class.content-area') className = 'content-area'
 
     stringSave = ""
+    open = false
 
     constructor(public service: ServService) { }
 
@@ -21,7 +22,7 @@ export class SaveComponent implements OnInit {
     clear(event: Event) { this.service.clear() }
 
     export(event: Event) {
-        this.stringSave = this.service.game.getSave()
+        this.stringSave = this.service.export()
     }
 
     import(event: Event) {

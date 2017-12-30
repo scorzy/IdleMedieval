@@ -1,3 +1,4 @@
+import { SpellTabComponent } from './spell-tab/spell-tab.component';
 import { OptionsComponent } from './options/options.component';
 import { CurVillComponent } from './cur-vill/cur-vill.component';
 import { OrdersComponent } from './orders/orders.component';
@@ -12,6 +13,8 @@ import { UnitComponent } from './unit/unit.component'
 import { LabComponent } from 'app/lab/lab.component';
 import { TravelComponent } from 'app/travel/travel.component';
 import { UiComponent } from 'app/ui/ui.component';
+import { PrestigeNavComponent } from './prestige-nav/prestige-nav.component';
+import { PrestigeGroupComponent } from './prestige-group/prestige-group.component';
 
 export const ROUTES: Routes = [
     { path: '', redirectTo: 'home', pathMatch: 'full' },
@@ -22,6 +25,7 @@ export const ROUTES: Routes = [
         ]
     },
     { path: 'lab', component: LabComponent },
+    { path: 'spell', component: SpellTabComponent },
     { path: 'vil', component: CurVillComponent },
     { path: 'ord', component: OrdersComponent },
     { path: 'travel', component: TravelComponent },
@@ -31,6 +35,12 @@ export const ROUTES: Routes = [
             { path: 'save', component: SaveComponent },
             { path: 'ui', component: UiComponent },
             { path: 'about', component: AboutComponent }
+        ]
+    },
+    {
+        path: 'prest', component: PrestigeNavComponent,
+        children: [
+            { path: ':id', component: PrestigeGroupComponent }
         ]
     }
 ];

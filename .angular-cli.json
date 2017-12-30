@@ -17,7 +17,7 @@
                 },
                 {
                     "glob": "theme.css",
-                    "input": "../node_modules/primeng/resources/themes/start/",
+                    "input": "../node_modules/primeng/resources/themes/cupertino/",
                     "output": "./start.css"
                 },
                 {

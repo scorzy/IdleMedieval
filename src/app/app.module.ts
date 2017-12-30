@@ -25,6 +25,8 @@ import { GrowlModule } from 'primeng/primeng';
 import { PrestigeNavComponent } from './prestige-nav/prestige-nav.component';
 import { OptionsComponent } from './options/options.component';
 import { UiComponent } from './ui/ui.component';
+import { PrestigeGroupComponent } from './prestige-group/prestige-group.component';
+import { SpellTabComponent } from './spell-tab/spell-tab.component';
 
 @NgModule({
     declarations: [
@@ -44,7 +46,9 @@ import { UiComponent } from './ui/ui.component';
         TravelComponent,
         PrestigeNavComponent,
         OptionsComponent,
-        UiComponent
+        UiComponent,
+        PrestigeGroupComponent,
+        SpellTabComponent
     ],
     imports: [
         BrowserAnimationsModule,
