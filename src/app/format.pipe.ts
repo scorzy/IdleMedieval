@@ -8,7 +8,7 @@ import { ServService } from 'app/serv.service'
 export class FormatPipe implements PipeTransform {
   constructor(public gameService: ServService) {
   }
-  public transform(value: Decimal, short: boolean): any {
+  public transform(value: Decimal): any {
 
     return this.gameService.options.usaFormat ?
       (

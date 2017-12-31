@@ -66,8 +66,8 @@ export class Game {
     honorInactive: Unit
     prestigeGrups = new Array<PrestigeGroupModel>()
     // region prestige Up
-    teamPrestige: Action
-    hirePrestige: Action
+    teamPrestige: Action; hirePrestige: Action
+    spellPrestigeTime: Action; spellPrestigePower: Action
 
     // endregion
     //#endregion
@@ -134,6 +134,7 @@ export class Game {
         this.goToWorld(this.village, true)
 
         this.matList.list.forEach(m => m.quantity = new Decimal(1E20))
+        this.honor.quantity = new Decimal(1E20)
     }
 
     init() {
@@ -350,6 +351,10 @@ export class Game {
             a.reloadMaxBuy()
             a.reloadStrings()
         }))
+
+
+        this.matList.list.forEach(m => m.quantity = new Decimal(1E20))
+        this.honor.quantity = new Decimal(1E20)
     }
     // endregion
 
@@ -612,7 +617,7 @@ export class Game {
         // region active
         const calth = new Bonus("calth", "Call to Arms",
             "x10 gold from blacksmiths x forge; 20 sec",
-            this, new Decimal(10), this.forge, false)
+            this, new Decimal(10), this.forge, false, "gold from blacksmiths x forge")
         calth.createActiveAct(new Decimal(1), new Decimal(80))
         const calthRes = new Research("calthRes", calth.name, calth.description,
             [new Cost(this.science, new Decimal(1))], [calth], this)
@@ -620,7 +625,7 @@ export class Game {
 
         const bigHunt = new Bonus("bHuB", "Big Hunt",
             "x10 food from hunters; 20 sec",
-            this, new Decimal(10), null, false)
+            this, new Decimal(10), null, false, "food from hunters")
         bigHunt.createActiveAct(new Decimal(100), new Decimal(80))
         const bigHuntRes = new Research("bHuRe", bigHunt.name, bigHunt.description,
             [new Cost(this.science, new Decimal(300))], [bigHunt], this)
@@ -718,11 +723,14 @@ export class Game {
         }))
     }
     initPrestige() {
-        this.teamPrestige = new Prestige("te", "Team Bonus", "+20% team bonus", this)
-        this.hirePrestige = new Prestige("hi", "Retroactive Hire", "+5% team bonus", this)
+        this.teamPrestige = new Prestige("teP", "Team Bonus", "+20% team bonus", this)
+        this.hirePrestige = new Prestige("hiP", "Retroactive Hire", "+5% team bonus", this)
         this.hirePrestige.limit = new Decimal(20)
-
         this.prestigeGrups.push(new PrestigeGroupModel("bon", "Bonus", "Bonus desc", [this.teamPrestige, this.hirePrestige]))
+
+        this.spellPrestigePower = new Prestige("stP", "Spell Power", "+20% spell power", this)
+        this.spellPrestigeTime = new Prestige("spP", "Spell Duration", "+20% spell duration", this)
+        this.prestigeGrups.push(new PrestigeGroupModel("spell", "Spell", "Spell", [this.spellPrestigePower, this.spellPrestigeTime]))
     }
     initMages() {
         const mageList = new TypeList("Mages"); this.mainLists.push(mageList)
@@ -825,7 +833,7 @@ export class Game {
 
         const manaRegen = new Bonus("manaRegen", "Mana Regen",
             "x10 mana; 40 sec",
-            this, new Decimal(10), null, false)
+            this, new Decimal(10), null, false, "mana")
         manaRegen.createActiveAct(new Decimal(1), new Decimal(160))
         const manaRegenRes = new Research("manaRegenRes", manaRegen.name, manaRegen.description,
             [new Cost(this.science, new Decimal(1))], [manaRegen], this)
@@ -833,8 +841,8 @@ export class Game {
         this.mainGolemRes.toUnlock.push(manaRegenRes)
 
         const empowerGolem = new Bonus("emGoB", "Empower Golem",
-            "x10 from golem; 40 sec",
-            this, new Decimal(10), null, false)
+            "x10 golem earnings; 40 sec",
+            this, new Decimal(10), null, false, "golem earnings")
         empowerGolem.createActiveAct(new Decimal(1E3), new Decimal(160))
         const empowerGolemRes = new Research("emGoRe", empowerGolem.name, empowerGolem.description,
             [new Cost(this.science, new Decimal(1))], [empowerGolem], this)

@@ -8,6 +8,7 @@ import { ActiveBonus } from 'app/model/action';
 export class Bonus extends Base {
     tickLeft = new Decimal(0)
     activeAction: ActiveBonus
+
     constructor(
         id: string,
         name: string,
@@ -15,7 +16,8 @@ export class Bonus extends Base {
         game: Game,
         public power = new Decimal(1),
         public unitMulti: Base = null,
-        allOn = false
+        allOn = false,
+        public shortDesc: string = ""
     ) {
         super(id, name, description, game)
         this.quantity = power
@@ -33,12 +35,18 @@ export class Bonus extends Base {
             this.tickLeft = new Decimal(data.rm)
     }
     getBoost(): Decimal {
+        let bonus
         if (!this.isAactive())
             return new Decimal(0)
         else if (this.unitMulti)
-            return this.unitMulti.quantity.times(this.power)
+            bonus = this.unitMulti.quantity.times(this.power)
         else
-            return this.power
+            bonus = this.power
+
+        if (!this.alwaysOn)
+            bonus = bonus.plus(bonus.times(this.game.spellPrestigePower.quantity).times(0.2))
+
+        return bonus
     }
     isAactive(): boolean {
         return this.unlocked && (this.alwaysOn || this.tickLeft.greaterThan(0))
@@ -47,4 +55,5 @@ export class Bonus extends Base {
     createActiveAct(mana: Decimal, tick: Decimal) {
         this.activeAction = new ActiveBonus([new Cost(this.game.mana, mana, new Decimal(1.1))], this, this.game, tick)
     }
+
 }

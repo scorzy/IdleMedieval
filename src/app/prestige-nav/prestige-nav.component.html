@@ -1,9 +1,10 @@
 <div class="content-area">
     <router-outlet></router-outlet>
 </div>
-<clr-vertical-nav *ngFor="let prest of serv.game.prestigeGrups">
-    <a clrVerticalNavLink >Honor: {{serv.game.honor.quantity | format}}</a>
-    <a clrVerticalNavLink [routerLink]='"/prest/" + prest.id' routerLinkActive="active">
+<clr-vertical-nav>
+    <a clrVerticalNavLink>Honor: {{serv.game.honor.quantity | format}}</a>
+    <a clrVerticalNavLink *ngFor="let prest of serv.game.prestigeGrups" [routerLink]='"/prest/" + prest.id'
+        routerLinkActive="active">
         {{prest.name}}
     </a>
 </clr-vertical-nav>

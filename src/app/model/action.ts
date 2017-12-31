@@ -247,10 +247,15 @@ export class ActiveBonus extends Action {
     }
     buy(number: Decimal = new Decimal(1)): boolean {
         if (super.buy(number)) {
-            this.bonus.tickLeft = this.bonus.tickLeft.plus(this.tick)
+            this.bonus.tickLeft = this.bonus.tickLeft.plus(
+                this.getTickAct()
+            )
             return true
         }
         return false
+    }
+    getTickAct() {
+        return this.tick.plus(this.tick.times(0.2).times(this.game.spellPrestigeTime.quantity))
     }
 }
 
