@@ -1,24 +1,25 @@
-import { Game } from './game';
-import { Unit } from './unit';
+import { Game } from './game'
+import { Unit } from './unit'
+import { Races } from 'app/model/types'
 
 export class TypeList {
-  isCollapsed = true
-  isEnding = false
-  uiList = new Array<Unit>()
+    isCollapsed = true
+    isEnding = false
+    uiList = new Array<Unit>()
 
-  constructor(
-    public type = "",
-    public list = new Array<Unit>()
-  ) { }
+    constructor(
+        public type = "",
+        public list = new Array<Unit>()
+    ) { }
 
-  getId() {
-    return this.type
-  }
+    getId() {
+        return this.type
+    }
 
-  allCustom(percent: number) {
-    this.list.filter(u => !u.alwaysOn).forEach(u => u.percentage = percent)
-  }
-  reload() {
-    this.uiList = this.list.filter(u => u.unlocked)
-  }
+    allCustom(percent: number) {
+        this.list.filter(u => !u.alwaysOn).forEach(u => u.percentage = percent)
+    }
+    reload() {
+        this.uiList = this.list.filter(u => u.unlocked)
+    }
 }

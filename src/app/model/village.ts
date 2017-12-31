@@ -20,6 +20,7 @@ export class Village {
 
         const prefix = VillagePrefix[Math.floor(Math.random() * VillagePrefix.length)]
         village.gainMulti = prefix.gainMulti
+        village.name = prefix.name
 
         //    Bonus and Malus
         village.avaiableRaces.push(Races[Math.floor(Math.random() * Races.length)])
@@ -32,6 +33,7 @@ export class Village {
             village.kingOrders.push(new KingOrder("" + i, mat, game))
             unusedMat = unusedMat.filter(m => m !== mat)
         }
+
         return village
     }
 
@@ -69,29 +71,29 @@ export class Village {
         if (data.vk)
             this.keep = data.vk
         if (data.vs && data.vs.lenght > 0)
-            data.vs.foreach(st => {
+            for (let st of data.vs) {
                 const stuff = game.allMap.get(st[0])
                 if (stuff) {
                     const num = new Decimal(st[1])
                     this.startingStuff.push([stuff, num])
                 }
-            })
+            }
         if (data.va && data.va.lenght > 0)
-            data.va.foreach(st => {
+            for (let st of data.va) {
                 const stuff = game.allMap.get(st)
                 if (stuff)
                     this.avaiableStuff.push(stuff)
-            })
-        if (data.vg && data.vg.lenght > 0)
-            data.vg.foreach(ga => {
+            }
+        if (data.vg)
+            for (let ga of data.vg) {
                 const stuff = game.allMap.get(ga[0])
                 if (stuff && stuff instanceof Unit) {
                     const num = new Decimal(ga[1])
                     this.gainMulti.push([stuff, num])
                 }
-            })
+            }
         if (data.vm)
-            this.avaiableRaces = data.vm
+            this.malus = data.vm
     }
 
     // tslint:disable-next-line:member-ordering

@@ -1,4 +1,4 @@
-import { Malus } from './types';
+import { Malus, Races } from './types';
 import { BoostAction, HireAction, Action, ActiveBonus, Prestige } from './action'
 import { TypeList } from './typeList'
 import { Production } from './production'
@@ -8,7 +8,6 @@ import { Buy, Research, BuyAndUnlock, KingOrder } from 'app/model/action'
 import { Cost } from 'app/model/cost'
 import { EventEmitter } from '@angular/core'
 import { Type } from '@angular/core/src/type'
-import { Races } from 'app/model/types'
 import { Bonus } from 'app/model/bonus'
 import { Village } from 'app/model/village'
 import * as Decimal from 'break_infinity.js'
@@ -54,7 +53,7 @@ export class Game {
     // endregion
     // region Researchs
     team1: Research; team2: Research; hire: Research; woodRes: Research
-    mainBuldingRes: Research
+    mainBuldingRes: Research; orderRes: Research
     // endregion
     // region Buldings
     huntCamp: Unit; university: Unit; woodCamp: Unit; cave: Unit; mine: Unit; mageTower: Unit; forge: Unit
@@ -81,6 +80,7 @@ export class Game {
     scienceCost5 = new Decimal(1E6)
     expTeam = new Decimal(4)
     expHire = new Decimal(6)
+    overMulti = new Decimal(-0.5)
     // endregion
     // region Malus
     thief: Unit; masterThief: Unit; thiefGuild: Unit; thievesList = new Array<Unit>()
@@ -89,6 +89,9 @@ export class Game {
     // endregion
     // region Mages
     mainGolemRes: Research; monk: Unit
+    // endregion
+    // region Dwarf
+    dwarfMiner: Unit; dwarfRes: Research
     // endregion
     village: Village
     nextVillage = new Array<Village>()
@@ -113,6 +116,8 @@ export class Game {
         this.initOver()
         this.initResearchs()
         this.initMages()
+        this.initVillTypes()
+        this.initDwarf()
 
         this.initPrestige()
         this.init()
@@ -327,6 +332,7 @@ export class Game {
         this.village = village
         if (!first)
             this.tabList.forEach(t => t.unlocked = true)
+        this.initRace(Races[0])
         this.village.avaiableRaces.forEach(r => this.initRace(r))
         this.unlockUnits(this.village.startingStuff.map(t => t[0]))
         this.village.startingStuff.forEach(st => st[0].quantity = st[1])
@@ -527,77 +533,9 @@ export class Game {
         this.companyList = new TypeList("Company")
         this.mainLists.push(this.masterList, this.guildList, this.companyList)
 
-        const mainCompanyRes = new Research("aCoRes", "Company", "Company",
-            [new Cost(this.science, new Decimal(5E8))],
-            [], this)
-        const mainGuildRes = new Research("aGuRes", "Guilds", "Guilds",
-            [new Cost(this.science, new Decimal(5E6))],
-            [mainCompanyRes], this)
-        const mainMasterRes = new Research("aMaRes", "Master", "Master",
-            [new Cost(this.science, new Decimal(5E4))],
-            [mainGuildRes], this)
-        this.mainBuldingRes = new Research("aBuRes", "Buildings", "Buildings",
-            [new Cost(this.science, new Decimal(2E3))],
-            [mainMasterRes], this)
-
-
-        const lenght = this.workList.list.length
-        for (let i = 0; i < lenght; i++) {
-            const worker = this.workList.list[i]
-            const building = this.buildList.list[i]
-            const master = new Unit(worker.id + "-M",
-                "M. " + worker.name,
-                "Master " + worker.name + " makes " + building.name, this)
-            const guild = new Unit(worker.id + "-G",
-                worker.name + " G.",
-                worker.name + " Guild" + " make " + master.name, this)
-            const company = new Unit(worker.id + "-C",
-                worker.name + " C.",
-                worker.name + " Company" + " make " + guild.name, this)
-
-            this.productionTable.push(new Production(master, building, new Decimal(1), this))
-            this.productionTable.push(new Production(guild, master, new Decimal(1), this))
-            this.productionTable.push(new Production(company, guild, new Decimal(1), this))
-
-            master.createBuy([new Cost(worker, new Decimal(1E3))])
-            guild.createBuy([new Cost(building, new Decimal(1E3)), new Cost(this.gold, new Decimal(1E6))])
-            company.createBuy([new Cost(master, new Decimal(1E3)), new Cost(this.gold, new Decimal(1E9))])
-
-            master.createBoost([new Cost(this.science, this.scienceCost3, this.expTeam)])
-            master.createHire([new Cost(this.science, this.scienceCost3, this.expTeam)])
-            guild.createBoost([new Cost(this.science, this.scienceCost4, this.expTeam)])
-            guild.createHire([new Cost(this.science, this.scienceCost4, this.expTeam)])
-            company.createBoost([new Cost(this.science, this.scienceCost5, this.expTeam)])
-            company.createHire([new Cost(this.science, this.scienceCost5, this.expTeam)])
-
-            building.buyAction.price.forEach(p => {
-                this.productionTable.push(new Production(master, p.what, p.basePrice.times(-0.2), this))
-            })
-            master.buyAction.price.forEach(p => {
-                this.productionTable.push(new Production(guild, p.what, p.basePrice.times(-0.2), this))
-            })
-            guild.buyAction.price.forEach(p => {
-                this.productionTable.push(new Production(company, p.what, p.basePrice.times(-0.2), this))
-            })
-
-            this.masterList.list.push(master)
-            this.guildList.list.push(guild)
-            this.companyList.list.push(company)
-
-            const buildRes = new Research(worker.id + "^1", building.name, building.description,
-                [new Cost(this.science, new Decimal(2E3))], [building], this)
-            const masterRes = new Research(worker.id + "^2", master.name, master.description,
-                [new Cost(this.science, new Decimal(1E5))], [master], this)
-            const guildRes = new Research(worker.id + "^3", guild.name, guild.description,
-                [new Cost(this.science, new Decimal(1E7))], [guild], this)
-            const compRes = new Research(worker.id + "^4", company.name, company.description,
-                [new Cost(this.science, new Decimal(1E9))], [company], this)
-
-            this.mainBuldingRes.toUnlock.push(buildRes)
-            mainMasterRes.toUnlock.push(masterRes)
-            mainGuildRes.toUnlock.push(guildRes)
-            mainCompanyRes.toUnlock.push(compRes)
-        }
+        this.mainBuldingRes =
+            this.createOver([this.workList, this.buildList, this.masterList, this.guildList, this.companyList],
+                ".", "", this.orderRes)
     }
     initResearchs() {
         // region boost and hire
@@ -647,34 +585,34 @@ export class Game {
             [new Cost(this.science, new Decimal(10))], [templarRes, this.soldier], this)
         // endregion
 
-        const stufMatrix = [this.workList, this.buildList, this.masterList, this.guildList, this.companyList]
-        let lastBonusRes = betterHunting
-        let lastPrice = new Decimal(10)
-        stufMatrix.forEach(s => {
-            const bon1List = new Array<Base>()
-            let price = lastPrice.times(50)
-            lastPrice = price
-            s.list.forEach(work => {
-                const bon = new Bonus("ò" + work.id, "Better " + work.name,
-                    "+100% resources from " + work.name, this, new Decimal(1), null, true)
-                const res = new Research("@" + work.id, bon.name, bon.description,
-                    [new Cost(this.science, price)], [bon], this, new Decimal(3))
-                bon.unitMulti = res
-                work.producs[0].bonus.push(bon)
-                bon1List.push(res)
-            })
-            const bonus1Res = new Research("bonusRes1", "Bonus", "Unlock bonus for your " + s.type,
-                [new Cost(this.science, price.times(0.6))], bon1List, this)
-            lastBonusRes.toUnlock.push(bonus1Res)
-            lastBonusRes = bonus1Res
-        })
+        // const stufMatrix = [this.workList, this.buildList, this.masterList, this.guildList, this.companyList]
+        // let lastBonusRes = betterHunting
+        // let lastPrice = new Decimal(10)
+        // stufMatrix.forEach(s => {
+        //     const bon1List = new Array<Base>()
+        //     let price = lastPrice.times(50)
+        //     lastPrice = price
+        //     s.list.forEach(work => {
+        //         const bon = new Bonus("ò" + work.id, "Better " + work.name,
+        //             "+100% resources from " + work.name, this, new Decimal(1), null, true)
+        //         const res = new Research("@" + work.id, bon.name, bon.description,
+        //             [new Cost(this.science, price)], [bon], this, new Decimal(3))
+        //         bon.unitMulti = res
+        //         work.producs[0].bonus.push(bon)
+        //         bon1List.push(res)
+        //     })
+        //     const bonus1Res = new Research("bonusRes1", "Bonus", "Unlock bonus for your " + s.type,
+        //         [new Cost(this.science, price.times(0.6))], bon1List, this)
+        //     lastBonusRes.toUnlock.push(bonus1Res)
+        //     lastBonusRes = bonus1Res
+        // })
 
         // region Workers
-        const orderRes = new Research("orderRes", "Orders", "Orders",
+        this.orderRes = new Research("orderRes", "Orders", "Orders",
             [new Cost(this.science, new Decimal(1500))], [this.honor, this.ordTab, this.vilTab, this.travelTab, this.mainBuldingRes], this)
 
         const blackRes = new Research("blackRes", "Blacksmitting", "Blacksmitting",
-            [new Cost(this.science, new Decimal(800))], [this.blacksmith, this.gold, orderRes], this)
+            [new Cost(this.science, new Decimal(800))], [this.blacksmith, this.gold, this.orderRes], this)
 
         const manaRes = new Research("manaRes", "Mana", "Mana",
             [new Cost(this.science, new Decimal(400))], [this.mage, this.mana, blackRes, bigHuntRes, this.spellTab], this)
@@ -733,28 +671,15 @@ export class Game {
         this.prestigeGrups.push(new PrestigeGroupModel("spell", "Spell", "Spell", [this.spellPrestigePower, this.spellPrestigeTime]))
     }
     initMages() {
-        const mageList = new TypeList("Mages"); this.mainLists.push(mageList)
         const golemList = new TypeList("Golem"); this.mainLists.push(golemList)
         const apprList = new TypeList("Apprentice"); this.mainLists.push(apprList)
         const summonerList = new TypeList("Summoner"); this.mainLists.push(summonerList)
         const masterList = new TypeList("Master Summoners"); this.mainLists.push(masterList)
         const collegeList = new TypeList("College"); this.mainLists.push(collegeList)
 
-        const mainCollegeRes = new Research(")C", "Colleges", "Colleges",
-            [new Cost(this.science, new Decimal(5E8))],
-            [], this)
-        const mainMasterRes = new Research(")M", "Master", "Master",
-            [new Cost(this.science, new Decimal(5E6))],
-            [mainCollegeRes], this)
-        const mainSummonerRes = new Research(")S", "Summoners", "Summoners",
-            [new Cost(this.science, new Decimal(5E4))],
-            [mainMasterRes], this)
-        const mainApprenticeRes = new Research(")A", "Apprentices", "Apprentices",
-            [new Cost(this.science, new Decimal(2E3))],
-            [mainSummonerRes], this)
         this.mainGolemRes = new Research(")G", "Golems", "Golems",
             [new Cost(this.science, new Decimal(100))],
-            [mainApprenticeRes], this)
+            [], this)
 
         const golemMat = [this.wood, this.stone, this.metal]
 
@@ -764,7 +689,7 @@ export class Game {
         this.monk.createBuy([new Cost(this.food, new Decimal(50))])
         this.monk.createBoost([new Cost(this.science, this.scienceCost1, this.expTeam)])
         this.monk.createHire([new Cost(this.science, this.scienceCost1, this.expHire)])
-        mageList.list.push(this.monk)
+        this.workList.list.push(this.monk)
 
         golemMat.forEach(mat => {
             const golem = new Unit(mat.id + "Gol", mat.name + " Golem", mat.name + " Golem", this)
@@ -783,53 +708,16 @@ export class Game {
             appre.createHire([new Cost(this.science, this.scienceCost2, this.expHire)])
             apprList.list.push(appre)
 
-            const summoner = new Unit(mat.id + "Su", mat.name + " Sum.", mat.name + " Summoner", this)
-            this.productionTable.push(new Production(summoner, appre, new Decimal(1), this))
-            appre.buyAction.price.forEach(a =>
-                this.productionTable.push(new Production(summoner, a.what, a.basePrice.times(-0.2), this))
-            )
-            summoner.createBuy([new Cost(golem, new Decimal(1E3))])
-            summoner.createBoost([new Cost(this.science, this.scienceCost3, this.expTeam)])
-            summoner.createHire([new Cost(this.science, this.scienceCost3, this.expHire)])
-            summonerList.list.push(summoner)
-
-            const master = new Unit(mat.id + "Ma-", mat.name + " M.", mat.name + " Master", this)
-            this.productionTable.push(new Production(master, summoner, new Decimal(1), this))
-            summoner.buyAction.price.forEach(a =>
-                this.productionTable.push(new Production(master, a.what, a.basePrice.times(-0.2), this))
-            )
-            master.createBuy([new Cost(appre, new Decimal(1E3))])
-            master.createBoost([new Cost(this.science, this.scienceCost4, this.expTeam)])
-            master.createHire([new Cost(this.science, this.scienceCost4, this.expHire)])
-            masterList.list.push(master)
-
-            const college = new Unit(mat.id + "Co-", mat.name + " C.", mat.name + " College", this)
-            this.productionTable.push(new Production(master, master, new Decimal(1), this))
-            master.buyAction.price.forEach(a =>
-                this.productionTable.push(new Production(college, a.what, a.basePrice.times(-0.2), this))
-            )
-            college.createBuy([new Cost(summoner, new Decimal(1E3))])
-            college.createBoost([new Cost(this.science, this.scienceCost5, this.expTeam)])
-            college.createHire([new Cost(this.science, this.scienceCost5, this.expHire)])
-            collegeList.list.push(college)
-
             const golemRes = new Research(golem.id + "^", golem.name, golem.description,
                 [new Cost(this.science, new Decimal(200))], [golem], this)
             const apprtRes = new Research(appre.id + "^", appre.name, appre.description,
                 [new Cost(this.science, new Decimal(1E3))], [appre], this)
-            const summRes = new Research(summoner.id + "^", summoner.name, summoner.description,
-                [new Cost(this.science, new Decimal(1E5))], [summoner], this)
-            const mastRes = new Research(master.id + "^", master.name, master.description,
-                [new Cost(this.science, new Decimal(1E7))], [master], this)
-            const collegeRes = new Research(college.id + "^", college.name, college.description,
-                [new Cost(this.science, new Decimal(1E9))], [college], this)
 
-            mainCollegeRes.toUnlock.push(collegeRes)
-            mainMasterRes.toUnlock.push(mastRes)
-            mainSummonerRes.toUnlock.push(summRes)
-            mainApprenticeRes.toUnlock.push(apprtRes)
             this.mainGolemRes.toUnlock.push(golemRes)
         })
+        const mainApprenticeRes = this.createOver([golemList, apprList, summonerList, masterList, collegeList],
+            "à", "Mage ", this.mainGolemRes)
+        this.mainGolemRes.toUnlock.push(mainApprenticeRes)
 
         const manaRegen = new Bonus("manaRegen", "Mana Regen",
             "x10 mana; 40 sec",
@@ -850,7 +738,173 @@ export class Game {
         mainApprenticeRes.toUnlock.push(empowerGolem)
 
     }
+    initVillTypes() { }
+    initDwarf() {
+        const dwarfList = new TypeList("Dwarfs"); this.mainLists.push(dwarfList)
+        const dwarfList2 = new TypeList("Dwarfs Buildings"); this.mainLists.push(dwarfList2)
+        const dwarfList3 = new TypeList("Dwarfs Masters"); this.mainLists.push(dwarfList3)
+        const dwarfList4 = new TypeList("Dwarfs Guild"); this.mainLists.push(dwarfList4)
+        const dwarfList5 = new TypeList("Dwarfs Company"); this.mainLists.push(dwarfList5)
+
+        //    region worker
+        this.dwarfMiner = new Unit("dwMi", "Miner", "Dwarf Miner", this)
+        this.productionTable.push(new Production(this.dwarfMiner, this.metal, new Decimal(1), this))
+        this.dwarfMiner.createBuy([new Cost(this.food, new Decimal(30))])
+        this.dwarfMiner.createBoost([new Cost(this.science, this.scienceCost1, this.expTeam)])
+        this.dwarfMiner.createHire([new Cost(this.science, this.scienceCost1, this.expHire)])
+        dwarfList.list.push(this.dwarfMiner)
+
+        const engineer = new Unit("dwEn", "Engineer", "Dwarf Engineer", this)
+        this.productionTable.push(new Production(engineer, this.science, new Decimal(1), this))
+        this.productionTable.push(new Production(engineer, this.metal, new Decimal(-3), this))
+        this.dwarfMiner.createBuy([new Cost(this.food, new Decimal(35))])
+        engineer.createBoost([new Cost(this.science, this.scienceCost1, this.expTeam)])
+        engineer.createHire([new Cost(this.science, this.scienceCost1, this.expHire)])
+        dwarfList.list.push(engineer)
+
+        const bartender = new Unit("dwba", "Bartender", "Dwarf Bartender", this)
+        this.productionTable.push(new Production(bartender, this.gold, new Decimal(1), this))
+        this.productionTable.push(new Production(bartender, this.food, new Decimal(-5), this))
+        this.dwarfMiner.createBuy([new Cost(this.food, new Decimal(40))])
+        bartender.createBoost([new Cost(this.science, this.scienceCost1, this.expTeam)])
+        bartender.createHire([new Cost(this.science, this.scienceCost1, this.expHire)])
+        dwarfList.list.push(bartender)
+
+        const brewer = new Unit("dwBr", "Brewer", "Dwarf Brewer", this)
+        this.productionTable.push(new Production(brewer, this.food, new Decimal(1), this))
+        this.productionTable.push(new Production(brewer, this.wood, new Decimal(-2), this))
+        this.dwarfMiner.createBuy([new Cost(this.food, new Decimal(45))])
+        brewer.createBoost([new Cost(this.science, this.scienceCost1, this.expTeam)])
+        brewer.createHire([new Cost(this.science, this.scienceCost1, this.expHire)])
+        dwarfList.list.push(brewer)
+        //    endregion
+
+        // region buildings
+        const dwarfMiner2 = new Unit("dwMi2", "Mine", "Dwarf Mine", this)
+        this.productionTable.push(new Production(dwarfMiner2, this.dwarfMiner, new Decimal(1), this))
+        this.productionTable.push(new Production(dwarfMiner2, this.metal, new Decimal(-4), this))
+        dwarfMiner2.createBuy([new Cost(this.metal, new Decimal(1E3)), new Cost(this.wood, new Decimal(200))])
+        dwarfMiner2.createBoost([new Cost(this.science, this.scienceCost2, this.expTeam)])
+        dwarfMiner2.createHire([new Cost(this.science, this.scienceCost2, this.expHire)])
+        dwarfList2.list.push(dwarfMiner2)
+
+        const engineer2 = new Unit("dwEnB2", "University", "Dwarf University", this)
+        this.productionTable.push(new Production(engineer2, engineer, new Decimal(1), this))
+        this.productionTable.push(new Production(engineer2, this.metal, new Decimal(-4), this))
+        engineer2.createBuy([new Cost(this.metal, new Decimal(1E3)), new Cost(this.stone, new Decimal(500))])
+        engineer2.createBoost([new Cost(this.science, this.scienceCost2, this.expTeam)])
+        engineer2.createHire([new Cost(this.science, this.scienceCost2, this.expHire)])
+        dwarfList2.list.push(engineer2)
+
+        const bartender2 = new Unit("dwbaB2", "Inn", "Dwarf Inn", this)
+        this.productionTable.push(new Production(bartender2, bartender, new Decimal(1), this))
+        this.productionTable.push(new Production(bartender2, this.food, new Decimal(-5), this))
+        bartender2.createBuy([new Cost(this.metal, new Decimal(1E3)), new Cost(this.stone, new Decimal(700))])
+        bartender2.createBoost([new Cost(this.science, this.scienceCost2, this.expTeam)])
+        bartender2.createHire([new Cost(this.science, this.scienceCost2, this.expHire)])
+        dwarfList2.list.push(bartender2)
+
+        const brewer2 = new Unit("dwBrB2", "Brewer", "Dwarf Brewer", this)
+        this.productionTable.push(new Production(brewer2, brewer, new Decimal(1), this))
+        this.productionTable.push(new Production(brewer2, this.wood, new Decimal(-5), this))
+        brewer2.createBuy([new Cost(this.metal, new Decimal(1E3)), new Cost(this.stone, new Decimal(1E3))])
+        brewer2.createBoost([new Cost(this.science, this.scienceCost2, this.expTeam)])
+        brewer2.createHire([new Cost(this.science, this.scienceCost2, this.expHire)])
+        dwarfList2.list.push(brewer2)
+        // endregion
+
+
+    }
     // endregion
+
+    createOver(lists: TypeList[], id: string, name: string, first: Research) {
+        const mainCompanyRes = new Research(id + "aCoR", name + " Company", "Company",
+            [new Cost(this.science, new Decimal(5E8))],
+            [], this)
+        const mainGuildRes = new Research(id + "aGuR", name + " Guilds", "Guilds",
+            [new Cost(this.science, new Decimal(5E6))],
+            [mainCompanyRes], this)
+        const mainMasterRes = new Research(id + "aMaR", name + " Master", "Master",
+            [new Cost(this.science, new Decimal(5E4))],
+            [mainGuildRes], this)
+        const mainBuldingRes = new Research(id + "aBuR", name + " Buildings", "Buildings",
+            [new Cost(this.science, new Decimal(2E3))],
+            [mainMasterRes], this)
+        const res = [mainBuldingRes, mainMasterRes, mainGuildRes, mainCompanyRes]
+
+        const lenght = lists[0].list.length
+        for (let i = 0; i < lenght; i++) {
+            const worker = lists[0].list[i]
+            const building = lists[1].list[i]
+            const master = new Unit(worker.id + "-M",
+                "M. " + worker.name,
+                "Master " + worker.name + " makes " + building.name, this)
+            const guild = new Unit(worker.id + "-G",
+                worker.name + " G.",
+                worker.name + " Guild" + " make " + master.name, this)
+            const company = new Unit(worker.id + "-C",
+                worker.name + " C.",
+                worker.name + " Company" + " make " + guild.name, this)
+
+            this.productionTable.push(new Production(master, building, new Decimal(1), this))
+            this.productionTable.push(new Production(guild, master, new Decimal(1), this))
+            this.productionTable.push(new Production(company, guild, new Decimal(1), this))
+
+            master.createBuy([new Cost(worker, new Decimal(1E3))])
+            guild.createBuy([new Cost(building, new Decimal(1E3)), new Cost(this.gold, new Decimal(1E6))])
+            company.createBuy([new Cost(master, new Decimal(1E3)), new Cost(this.gold, new Decimal(1E9))])
+
+            master.createBoost([new Cost(this.science, this.scienceCost3, this.expTeam)])
+            master.createHire([new Cost(this.science, this.scienceCost3, this.expTeam)])
+            guild.createBoost([new Cost(this.science, this.scienceCost4, this.expTeam)])
+            guild.createHire([new Cost(this.science, this.scienceCost4, this.expTeam)])
+            company.createBoost([new Cost(this.science, this.scienceCost5, this.expTeam)])
+            company.createHire([new Cost(this.science, this.scienceCost5, this.expTeam)])
+
+            building.buyAction.price.forEach(p => {
+                this.productionTable.push(new Production(master, p.what, p.basePrice.times(this.overMulti), this))
+            })
+            master.buyAction.price.forEach(p => {
+                this.productionTable.push(new Production(guild, p.what, p.basePrice.times(this.overMulti), this))
+            })
+            guild.buyAction.price.forEach(p => {
+                this.productionTable.push(new Production(company, p.what, p.basePrice.times(this.overMulti), this))
+            })
+
+            lists[2].list.push(master)
+            lists[3].list.push(guild)
+            lists[4].list.push(company)
+
+            const buildRes = new Research(worker.id + "^1", building.name, building.description,
+                [new Cost(this.science, new Decimal(2E3))], [building], this)
+            const masterRes = new Research(worker.id + "^2", master.name, master.description,
+                [new Cost(this.science, new Decimal(1E5))], [master], this)
+            const guildRes = new Research(worker.id + "^3", guild.name, guild.description,
+                [new Cost(this.science, new Decimal(1E7))], [guild], this)
+            const compRes = new Research(worker.id + "^4", company.name, company.description,
+                [new Cost(this.science, new Decimal(1E9))], [company], this)
+
+            mainBuldingRes.toUnlock.push(buildRes)
+            mainMasterRes.toUnlock.push(masterRes)
+            mainGuildRes.toUnlock.push(guildRes)
+            mainCompanyRes.toUnlock.push(compRes)
+        }
+        const prices = [new Decimal(500), new Decimal(5E3), new Decimal(5E4), new Decimal(5E6), new Decimal(5E8)]
+        for (let i = 0; i < 5; i++) {
+            const research = res[i]
+            const list = lists[i]
+            list.list.forEach(work => {
+                const bon = new Bonus("ò" + work.id, "Better " + work.name,
+                    "+100% resources from " + work.name, this, new Decimal(1), null, true)
+                const bonRes = new Research("@" + work.id, bon.name, bon.description,
+                    [new Cost(this.science, prices[i])], [bon], this, new Decimal(3))
+                bon.unitMulti = bonRes
+                work.producs[0].bonus.push(bon)
+                research.toUnlock.push(bonRes)
+            })
+        }
+        return mainBuldingRes
+    }
 
 }
 
