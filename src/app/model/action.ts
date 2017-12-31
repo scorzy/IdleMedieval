@@ -158,8 +158,8 @@ export class Research extends Action {
         game.resList.push(this)
     }
 
-    buy() {
-        if (super.buy()) {
+    buy(number: Decimal = new Decimal(1)): boolean {
+        if (super.buy(number)) {
             this.game.unlockUnits(this.toUnlock)
             this.game.researchsObs.emit(1)
             return true

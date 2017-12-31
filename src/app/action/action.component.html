@@ -1,6 +1,7 @@
 <div class="card-block">
     <h3 class="card-title"> {{action.name}}
-        <span *ngIf="!action.oneTime && action.showNumber">({{action.quantity | format}})</span>
+        <span *ngIf="!action.oneTime && action.showNumber">{{action.quantity | format}}</span>
+        <span *ngIf="action.limit">/{{action.limit | format}}</span>
     </h3>
 
     <div class="toggle-switch hide" *ngIf="action.showHide">

@@ -113,7 +113,6 @@ export class Game {
         this.initMalus()
         this.initWorkers()
         this.initBuldings()
-        this.initOver()
         this.initResearchs()
         this.initMages()
         this.initVillTypes()
@@ -585,31 +584,11 @@ export class Game {
             [new Cost(this.science, new Decimal(10))], [templarRes, this.soldier], this)
         // endregion
 
-        // const stufMatrix = [this.workList, this.buildList, this.masterList, this.guildList, this.companyList]
-        // let lastBonusRes = betterHunting
-        // let lastPrice = new Decimal(10)
-        // stufMatrix.forEach(s => {
-        //     const bon1List = new Array<Base>()
-        //     let price = lastPrice.times(50)
-        //     lastPrice = price
-        //     s.list.forEach(work => {
-        //         const bon = new Bonus("ò" + work.id, "Better " + work.name,
-        //             "+100% resources from " + work.name, this, new Decimal(1), null, true)
-        //         const res = new Research("@" + work.id, bon.name, bon.description,
-        //             [new Cost(this.science, price)], [bon], this, new Decimal(3))
-        //         bon.unitMulti = res
-        //         work.producs[0].bonus.push(bon)
-        //         bon1List.push(res)
-        //     })
-        //     const bonus1Res = new Research("bonusRes1", "Bonus", "Unlock bonus for your " + s.type,
-        //         [new Cost(this.science, price.times(0.6))], bon1List, this)
-        //     lastBonusRes.toUnlock.push(bonus1Res)
-        //     lastBonusRes = bonus1Res
-        // })
-
         // region Workers
         this.orderRes = new Research("orderRes", "Orders", "Orders",
-            [new Cost(this.science, new Decimal(1500))], [this.honor, this.ordTab, this.vilTab, this.travelTab, this.mainBuldingRes], this)
+            [new Cost(this.science, new Decimal(1500))], [], this)
+        this.initOver()
+        this.orderRes.toUnlock.push(this.honor, this.ordTab, this.vilTab, this.travelTab, this.mainBuldingRes)
 
         const blackRes = new Research("blackRes", "Blacksmitting", "Blacksmitting",
             [new Cost(this.science, new Decimal(800))], [this.blacksmith, this.gold, this.orderRes], this)
@@ -830,7 +809,7 @@ export class Game {
         const mainBuldingRes = new Research(id + "aBuR", name + " Buildings", "Buildings",
             [new Cost(this.science, new Decimal(2E3))],
             [mainMasterRes], this)
-        const res = [mainBuldingRes, mainMasterRes, mainGuildRes, mainCompanyRes]
+        const res = [first, mainBuldingRes, mainMasterRes, mainGuildRes, mainCompanyRes]
 
         const lenght = lists[0].list.length
         for (let i = 0; i < lenght; i++) {
@@ -893,6 +872,9 @@ export class Game {
         for (let i = 0; i < 5; i++) {
             const research = res[i]
             const list = lists[i]
+            const allBonRes = new Research(id + "ù" + i, name + " Bonus", name + " Bonus",
+                [new Cost(this.science, prices[i].div(2))], [], this)
+            research.toUnlock.push(allBonRes)
             list.list.forEach(work => {
                 const bon = new Bonus("ò" + work.id, "Better " + work.name,
                     "+100% resources from " + work.name, this, new Decimal(1), null, true)
@@ -900,7 +882,7 @@ export class Game {
                     [new Cost(this.science, prices[i])], [bon], this, new Decimal(3))
                 bon.unitMulti = bonRes
                 work.producs[0].bonus.push(bon)
-                research.toUnlock.push(bonRes)
+                allBonRes.toUnlock.push(bonRes)
             })
         }
         return mainBuldingRes
