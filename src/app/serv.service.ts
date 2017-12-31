@@ -15,7 +15,7 @@ export class ServService {
 
     constructor(public toastr: ToastsManager
     ) {
-        this.game = new Game()
+        this.game = new Game(this.options)
         this.load()
         setInterval(this.update.bind(this), 249)    // 250
         setInterval(this.save.bind(this), 60000)
@@ -75,7 +75,7 @@ export class ServService {
     clear() {
         this.game = null
         localStorage.clear()
-        this.game = new Game()
+        this.game = new Game(this.options)
         window.location.reload()
     }
 

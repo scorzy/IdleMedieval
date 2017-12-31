@@ -2,11 +2,12 @@ declare let setCss: any
 
 export class Options {
 
-    public header = 5
-    public dark = false
-    public usaFormat = false
-    public hsn = false
-    public spellSide = false
+    header = 5
+    dark = false
+    usaFormat = false
+    hsn = false
+    spellSide = false
+    noNew = false
 
     constructor(
     ) { }
@@ -25,6 +26,8 @@ export class Options {
             this.hsn = data.hsn
         if (data.spellSide)
             this.spellSide = data.spellSide
+        if (data.noNew)
+            this.noNew = data.noNew
     }
 
 }

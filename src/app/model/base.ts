@@ -6,7 +6,6 @@ export class Base {
 
     quantity = new Decimal(0)
     unlocked = false
-    avabileThisWorld = true
     alwaysOn = false
     isNew = false
     race = Races[0]
@@ -29,7 +28,6 @@ export class Base {
         data.q = this.quantity
         if (!this.prestige) {
             data.u = this.unlocked
-            data.z = this.avabileThisWorld
             data.n = this.isNew
         }
         return data
@@ -39,8 +37,6 @@ export class Base {
             this.quantity = new Decimal(data.q)
         if (data.u)
             this.unlocked = data.u
-        if (data.z)
-            this.avabileThisWorld = data.z
         if (data.n)
             this.isNew = data.n
     }
