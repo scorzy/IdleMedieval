@@ -4,7 +4,15 @@
     <p class="no-mg-top">
         You can found a new village anytime. By found a new village you will lose everything expept honor upgrade.
     </p>
-
+    <button class="btn btn-secondary" (click)="change()">
+        <clr-icon shape="world"></clr-icon>
+        Change Villages
+    </button>
+    <label>Min Level:</label>
+    <input type="number" placeholder="0" [(ngModel)]="ss.game.minUser" class="numIn" min="1" [max]="ss.game.maxUser">
+    <label>Max Level ({{ss.game.maxMax}}):</label>
+    <input type="number" [placeholder]="ss.game.maxMax" [(ngModel)]="ss.game.maxUser" class="numIn" [min]="ss.game.minUser"
+        [max]="ss.game.maxMax">
     <div class="card-columns card-columns-3">
         <app-village [village]="vil" *ngFor="let vil of ss.game.nextVillage"></app-village>
     </div>

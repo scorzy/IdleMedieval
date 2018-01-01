@@ -12,6 +12,11 @@ export class TravelComponent implements OnInit {
     constructor(public ss: ServService) { }
 
     ngOnInit() {
+        this.ss.game.setMaxLevel()
+    }
+
+    change() {
+        this.ss.game.setRandomVillage()
     }
 
 }

@@ -88,6 +88,8 @@ export class Action extends Base {
             this.quantity = this.quantity.plus(number)
             this.realPriceNow = this.getCosts()
             this.owned = true
+            this.reloadMaxBuy()
+            this.reloadStrings()
             return true
         }
         return false
@@ -161,6 +163,7 @@ export class Research extends Action {
     buy(number: Decimal = new Decimal(1)): boolean {
         if (super.buy(number)) {
             this.game.unlockUnits(this.toUnlock)
+            this.game.resList.forEach(r => { r.reloadMaxBuy(); r.reloadStrings() })
             this.game.researchsObs.emit(1)
             return true
         }
@@ -280,22 +283,6 @@ export class KingOrder extends Action {
             return true
         }
         return false
-    }
-    getData() {
-        const data = super.getData()
-        if (this.price)
-            data.costs = this.price.map(p => [p.what.id, p.basePrice, p.increment])
-        return data
-    }
-    load(data: any) {
-        super.load(data)
-        this.price = new Array<Cost>()
-        if (data.costs)
-            data.costs.foreach(co => {
-                const what = this.game.allUnit.find(u => u.id === co[0])
-                if (what)
-                    this.price.push(new Cost(what, new Decimal(co[1]), new Decimal(co[2])))
-            })
     }
 }
 

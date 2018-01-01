@@ -97,6 +97,12 @@ export class Game {
     // endregion
     village: Village
     nextVillage = new Array<Village>()
+
+    minUser = 0
+    maxUser = 0
+    maxMax = 1
+    lifePrestige = new Decimal(0)
+
     // region Methods
     constructor(
         public options: Options
@@ -127,7 +133,7 @@ export class Game {
         this.init()
         this.allUnit.forEach(u => u.reloadProdTable())
 
-        this.village = new Village("Tutorial Village", Races)
+        this.village = new Village("Tutorial Village", [Races[0]])
         this.village.kingOrders = [
             new KingOrder("1", this.gold, this),
             new KingOrder("2", this.metal, this)
@@ -142,8 +148,8 @@ export class Game {
 
         this.goToWorld(this.village, true)
 
-        this.matList.list.forEach(m => m.quantity = new Decimal(1E20))
-        this.honor.quantity = new Decimal(1E20)
+        // this.matList.list.forEach(m => m.quantity = new Decimal(1E20))
+        // this.honor.quantity = new Decimal(1E20)
     }
 
     init() {
@@ -172,8 +178,9 @@ export class Game {
             })
         })
         this.activeUnits.forEach(u => u.realtotalPerSec = u.realtotalPerSec.times(5))
-        this.bonuList.filter(b => !b.alwaysOn && b.tickLeft.greaterThan(0)).forEach(bo =>
-            bo.tickLeft = Decimal.max(bo.tickLeft.minus(1), 0))
+        if (!this.pause)
+            this.bonuList.filter(b => !b.alwaysOn && b.tickLeft.greaterThan(0)).forEach(bo =>
+                bo.tickLeft = Decimal.max(bo.tickLeft.minus(1), 0))
         this.reload()
     }
     reload() {
@@ -193,7 +200,7 @@ export class Game {
         })
         this.unlockedActiveBoost.forEach(b => b.activeAction.reloadMaxBuy())
         if (this.isLab)
-            this.resList.filter(r => r.unlocked).forEach(r => r.reloadMaxBuy())
+            this.resList.filter(r => r.unlocked).forEach(r => { r.reloadMaxBuy(); r.reloadStrings() })
         if (this.activeUnit)
             this.activeUnit.actions.forEach(a => a.reloadStrings())
     }
@@ -201,6 +208,8 @@ export class Game {
         const data: any = {}
         data.un = this.allArr.map(u => u.getData())
         data.v = this.village.getSave()
+        data.l = this.lifePrestige
+        console.log(data)
         return data
     }
     load(data: any) {
@@ -219,6 +228,8 @@ export class Game {
         }
         if (data.v)
             this.village.loadData(data.v, this)
+        if (data.l)
+            this.lifePrestige = new Decimal(data.l)
         this.reloadAll()
     }
     reloadAll() {
@@ -312,7 +323,16 @@ export class Game {
                 break
         }
     }
-    setMaxLevel() { }
+
+    setMaxLevel() {
+        const m = this.lifePrestige.plus(this.honorInactive.quantity)
+        if (m.greaterThanOrEqualTo(0))
+            this.maxMax = Math.floor(Decimal.ln(m))
+        else
+            this.maxMax = 0
+        this.maxUser = Decimal.min(this.maxUser, this.maxMax).floor().toNumber()
+        this.minUser = Math.min(Math.max(0, this.minUser), this.maxUser)
+    }
     setRandomVillage(force: boolean = false) {
         this.setMaxLevel()
         if (!this.nextVillage || force)
@@ -331,7 +351,9 @@ export class Game {
 
     }
     goToWorld(village: Village, first = false) {
+        this.matList.list.forEach(m => m.quantity = new Decimal(0))
         this.honor.quantity = this.honor.quantity.plus(this.honorInactive.quantity)
+        this.lifePrestige = this.lifePrestige.plus(this.honorInactive.quantity)
         this.honorInactive.quantity = new Decimal(0)
         this.worldReset()
         this.village = village
@@ -362,8 +384,8 @@ export class Game {
             a.reloadMaxBuy()
             a.reloadStrings()
         }))
-
-
+        this.activeUnits = this.allUnit.filter(u => u.unlocked && !u.prestige)
+        this.reload()
         this.matList.list.forEach(m => m.quantity = new Decimal(1E20))
         this.honor.quantity = new Decimal(1E20)
     }
@@ -872,20 +894,20 @@ export class Game {
             lists[4].list.push(company)
 
             const buildRes = new Research(worker.id + "^1", building.name, building.description,
-                [new Cost(this.science, new Decimal(2E3))], [building], this)
+                [new Cost(this.science, new Decimal(5E3))], [building], this)
             const masterRes = new Research(worker.id + "^2", master.name, master.description,
-                [new Cost(this.science, new Decimal(1E5))], [master], this)
+                [new Cost(this.science, new Decimal(1E7))], [master], this)
             const guildRes = new Research(worker.id + "^3", guild.name, guild.description,
-                [new Cost(this.science, new Decimal(1E7))], [guild], this)
+                [new Cost(this.science, new Decimal(1E11))], [guild], this)
             const compRes = new Research(worker.id + "^4", company.name, company.description,
-                [new Cost(this.science, new Decimal(1E9))], [company], this)
+                [new Cost(this.science, new Decimal(1E16))], [company], this)
 
             mainBuldingRes.toUnlock.push(buildRes)
             mainMasterRes.toUnlock.push(masterRes)
             mainGuildRes.toUnlock.push(guildRes)
             mainCompanyRes.toUnlock.push(compRes)
         }
-        const prices = [new Decimal(500), new Decimal(5E3), new Decimal(5E4), new Decimal(5E6), new Decimal(5E8)]
+        const prices = [new Decimal(5E3), new Decimal(5E4), new Decimal(5E8), new Decimal(5E12), new Decimal(5E16)]
         for (let i = 0; i < 5; i++) {
             const research = res[i]
             const list = lists[i]
@@ -896,7 +918,7 @@ export class Game {
                 const bon = new Bonus("ò" + work.id, "Better " + work.name,
                     "+100% resources from " + work.name, this, new Decimal(1), null, true)
                 const bonRes = new Research("@" + work.id, bon.name, bon.description,
-                    [new Cost(this.science, prices[i])], [bon], this, new Decimal(3))
+                    [new Cost(this.science, prices[i], new Decimal(2))], [bon], this, new Decimal(3))
                 bon.unitMulti = bonRes
                 work.producs[0].bonus.push(bon)
                 allBonRes.toUnlock.push(bonRes)

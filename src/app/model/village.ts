@@ -18,6 +18,12 @@ export class Village {
     static GenerateVillage(game: Game): Village {
         const village = new Village()
 
+        //    level
+        game.setMaxLevel()
+        const min = game.minUser
+        const max = game.maxUser
+        village.level = new Decimal(min + Math.floor(Math.random() * (max - min)))
+
         const prefix = VillagePrefix[Math.floor(Math.random() * VillagePrefix.length)]
         village.gainMulti = prefix.gainMulti
         village.name = prefix.name
@@ -28,7 +34,7 @@ export class Village {
 
         //    Orders
         let unusedMat = game.matList.list
-        for (let i = 0; i < 3; i++) {
+        for (let i = 0; i < 2; i++) {
             let mat = unusedMat[Math.floor(Math.random() * unusedMat.length)]
             village.kingOrders.push(new KingOrder("" + i, mat, game))
             unusedMat = unusedMat.filter(m => m !== mat)
@@ -57,7 +63,7 @@ export class Village {
         data.vs = this.startingStuff.map(b => [b[0].id, b[1]])
         data.va = this.avaiableStuff.map(a => a.id)
         data.vg = this.gainMulti.map(g => [g[0].id, g[1]])
-        data.vo = this.kingOrders.map(ko => ko.getData())
+        data.vo = this.kingOrders.map(ko => [ko.price[0].what.id, ko.quantity])
         data.vm = this.malus
         return data
     }
@@ -94,6 +100,17 @@ export class Village {
             }
         if (data.vm)
             this.malus = data.vm
+
+        if (data.vo)
+            for (let i = 0; i < 3; i++)
+                if (data.vo[i]) {
+                    const stuff = game.allUnit.find(u => u.id === data.vo[i][0])
+                    this.kingOrders[i].price[0].what = stuff
+                    this.kingOrders[i].quantity = new Decimal(data.vo[i][1])
+                }
+
+        this.kingOrders.forEach(k => { k.realPriceNow = k.getCosts(); k.reloadMaxBuy(); k.reloadStrings() })
+
     }
 
     // tslint:disable-next-line:member-ordering
