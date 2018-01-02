@@ -1,7 +1,8 @@
 export const Races = [
     "Human",
     "Mages",
-    "Dwarf"
+    "Dwarf",
+    "Elves"
 ]
 
 export const Malus = [

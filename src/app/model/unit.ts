@@ -29,7 +29,9 @@ export class Unit extends Base {
     hireAction: Action
 
     bonus = new Array<Bonus>()
+    bonusProd = new Array<Bonus>()
     totBonus = new Decimal(1)
+    totBonusProd = new Decimal(1)
     worldBonus = new Decimal(0)
 
     productionIndep = false
@@ -61,6 +63,8 @@ export class Unit extends Base {
         // reload total bonus
         this.totBonus = new Decimal(0)
         this.bonus.filter(b => b.isAactive()).forEach(bo =>
+            this.totBonus = this.totBonus.plus(bo.getBoost()))
+        this.bonusProd.filter(b => b.isAactive()).forEach(bo =>
             this.totBonus = this.totBonus.plus(bo.getBoost()))
 
         this.totBonus = this.totBonus.plus(this.worldBonus)
