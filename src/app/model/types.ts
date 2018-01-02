@@ -6,6 +6,11 @@ export const Races = [
 
 export const Malus = [
     "Zombies",
-    "Thieves"
+    "Pyromancers",
+    "Gargoyles",
+    "Golem",
+    "Thieves",
+    "Pseudoscientists",
+    "Heretics"
 ]
 

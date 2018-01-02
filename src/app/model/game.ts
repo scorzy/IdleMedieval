@@ -1,4 +1,4 @@
-import { Malus, Races } from './types';
+import { Malus, Races } from './types'
 import { BoostAction, HireAction, Action, ActiveBonus, Prestige } from './action'
 import { TypeList } from './typeList'
 import { Production } from './production'
@@ -69,7 +69,8 @@ export class Game {
     // region prestige Up
     teamPrestige: Action; hirePrestige: Action
     spellPrestigeTime: Action; spellPrestigePower: Action
-
+    betterWorlds: Action
+    follower = new Array<Action>()
     // endregion
     //#endregion
     // region Costs
@@ -85,8 +86,6 @@ export class Game {
     overMulti = new Decimal(-0.5)
     // endregion
     // region Malus
-    thief: Unit; masterThief: Unit; thiefGuild: Unit; thievesList = new Array<Unit>()
-    zombie: Unit; lordZombie: Unit; zombieLich: Unit; zombieList = new Array<Unit>()
     malusLists = new Array<Array<Unit>>()
     // endregion
     // region Mages
@@ -326,10 +325,7 @@ export class Game {
 
     setMaxLevel() {
         const m = this.lifePrestige.plus(this.honorInactive.quantity)
-        if (m.greaterThanOrEqualTo(0))
-            this.maxMax = Math.floor(Decimal.ln(m))
-        else
-            this.maxMax = 0
+        this.maxMax = m.div(100).plus(1)
         this.maxUser = Decimal.min(this.maxUser, this.maxMax).floor().toNumber()
         this.minUser = Math.min(Math.max(0, this.minUser), this.maxUser)
     }
@@ -386,8 +382,16 @@ export class Game {
         }))
         this.activeUnits = this.allUnit.filter(u => u.unlocked && !u.prestige)
         this.reload()
-        this.matList.list.forEach(m => m.quantity = new Decimal(1E20))
-        this.honor.quantity = new Decimal(1E20)
+        // this.matList.list.forEach(m => m.quantity = new Decimal(1E20))
+        // this.honor.quantity = new Decimal(1E20)
+
+        // follower
+        const l = this.workList.list.length
+        for (let i = 0; i < l; i++) {
+            const worker = this.workList.list[i]
+            const follower = this.follower[i]
+            worker.quantity = worker.quantity.plus(follower.quantity)
+        }
     }
     // endregion
 
@@ -408,21 +412,22 @@ export class Game {
     initWorkers() {
         //    Templar
         this.templar = new Unit("soldier", "Soldier", "Soldier description", this)
-        this.productionTable.push(new Production(this.templar, this.thief, new Decimal(-1), this))
-        this.productionTable.push(new Production(this.templar, this.zombie, new Decimal(-3), this))
         this.templar.productionIndep = true
-        this.templar.createBuy([new Cost(this.food, new Decimal(200)), new Cost(this.gold, new Decimal(50))])
+        this.templar.createBuy([new Cost(this.food, new Decimal(1E3)), new Cost(this.gold, new Decimal(500))])
         this.templar.createBoost([new Cost(this.science, this.scienceCost1, this.expTeam)])
         this.templar.createHire([new Cost(this.science, this.scienceCost1, this.expHire)])
 
         //    Soldier
         this.soldier = new Unit("soldier", "Soldier", "Soldier description", this)
-        this.productionTable.push(new Production(this.soldier, this.thief, new Decimal(-1), this))
-        this.productionTable.push(new Production(this.soldier, this.zombie, new Decimal(-1), this))
         this.soldier.productionIndep = true
         this.soldier.createBuy([new Cost(this.food, new Decimal(100))])
         this.soldier.createBoost([new Cost(this.science, this.scienceCost1, this.expTeam)])
         this.soldier.createHire([new Cost(this.science, this.scienceCost1, this.expHire)])
+
+        this.malusLists.forEach(l => l.forEach(m => {
+            this.productionTable.push(new Production(this.soldier, m, new Decimal(-1), this))
+            this.productionTable.push(new Production(this.templar, m, new Decimal(-10), this))
+        }))
 
         //    Blacksmith
         this.blacksmith = new Unit("blacksmith", "Blacksmith", "Blacksmith description", this)
@@ -579,8 +584,6 @@ export class Game {
             "x10 food from hunters; 20 sec",
             this, new Decimal(10), null, false, "food from hunters")
         bigHunt.createActiveAct(new Decimal(100), new Decimal(80))
-        const bigHuntRes = new Research("bHuRe", bigHunt.name, bigHunt.description,
-            [new Cost(this.science, new Decimal(300))], [bigHunt], this)
         this.hunter.producs[0].bonus.push(bigHunt)
         // endregion
         // region passive
@@ -606,10 +609,10 @@ export class Game {
         this.orderRes.toUnlock.push(this.honor, this.ordTab, this.vilTab, this.travelTab, this.mainBuldingRes)
 
         const blackRes = new Research("blackRes", "Blacksmitting", "Blacksmitting",
-            [new Cost(this.science, new Decimal(800))], [this.blacksmith, this.gold, this.orderRes], this)
+            [new Cost(this.science, new Decimal(800))], [this.blacksmith, this.gold, this.orderRes, calthRes], this)
 
         const manaRes = new Research("manaRes", "Mana", "Mana",
-            [new Cost(this.science, new Decimal(400))], [this.mage, this.mana, blackRes, bigHuntRes, this.spellTab], this)
+            [new Cost(this.science, new Decimal(400))], [this.mage, this.mana, blackRes, bigHunt, this.spellTab], this)
 
         const metalRes = new Research("meRe", "Metal", "Metal",
             [new Cost(this.science, new Decimal(200))], [this.miner, this.metal, manaRes], this)
@@ -622,37 +625,50 @@ export class Game {
         // endregion
     }
     initMalus() {
-        // region    Thieves
-        this.thief = new Unit("thief", "Thief", "Thief descriptio", this)
-        this.masterThief = new Unit("msThief", "Thief", "Thief descriptio", this)
-        this.thiefGuild = new Unit("thiefGuild", "Thief", "Thief descriptio", this)
-        this.productionTable.push(new Production(this.thief, this.gold, new Decimal(-1), this))
-        this.productionTable.push(new Production(this.masterThief, this.thief, new Decimal(1), this))
-        this.productionTable.push(new Production(this.thiefGuild, this.masterThief, new Decimal(1), this))
+        this.subInitMalus("Z", this.food, "Zombies", "Zombie", "Zombie description",
+            "Lord Zombie", "Lord Zombie descriptio", "Lich Zombie", "Lich Zombie descriptio")
 
-        const thievesTypeList = new TypeList("Thieves")
-        thievesTypeList.list = [this.thief, this.masterThief, this.thiefGuild]
-        this.thievesList = thievesTypeList.list
-        this.mainLists.push(thievesTypeList)
-        // endregion
-        // region    Zombie
-        this.zombie = new Unit("zombie", "Zombie", "Zombie descriptio", this)
-        this.lordZombie = new Unit("lordZombie", "Lord Zombie", "Lord Zombie descriptio", this)
-        this.zombieLich = new Unit("zombieLich", "Lich Zombie", "Lich Zombie descriptio", this)
-        this.productionTable.push(new Production(this.zombie, this.food, new Decimal(-1), this))
-        this.productionTable.push(new Production(this.lordZombie, this.zombie, new Decimal(1), this))
-        this.productionTable.push(new Production(this.zombieLich, this.lordZombie, new Decimal(1), this))
+        this.subInitMalus("P", this.wood, "Pyromancers", "Pyromancer", "Pyromancer description",
+            "Lord Zombie", "Lord Zombie descriptio", "Lich Zombie", "Lich Zombie descriptio")
 
-        const zombieTypeList = new TypeList("Zombies")
-        zombieTypeList.list = [this.zombie, this.lordZombie, this.zombieLich]
-        this.zombieList = zombieTypeList.list
-        this.mainLists.push(zombieTypeList)
-        // endregion
-        this.malusLists = [this.zombieList, this.thievesList]
-        this.malusLists.forEach(l => l.forEach(m => {
-            m.alwaysOn = true
-            m.malus = true
-        }))
+        this.subInitMalus("T", this.stone, "Gargoyles", "Thief", "Zombie description",
+            "Lord Zombie", "Lord Zombie descriptio", "Lich Zombie", "Lich Zombie descriptio")
+
+        this.subInitMalus("G", this.metal, "Golem", "Thief", "Zombie description",
+            "Lord Zombie", "Lord Zombie descriptio", "Lich Zombie", "Lich Zombie descriptio")
+
+        this.subInitMalus("T", this.gold, "Thieves", "Thief", "Zombie description",
+            "Lord Zombie", "Lord Zombie descriptio", "Lich Zombie", "Lich Zombie descriptio")
+
+        this.subInitMalus("S", this.science, "Pseudoscientists", "Thief", "Zombie description",
+            "Lord Zombie", "Lord Zombie descriptio", "Lich Zombie", "Lich Zombie descriptio")
+
+        this.subInitMalus("E", this.mana, "Heretics", "Thief", "Zombie description",
+            "Lord Zombie", "Lord Zombie descriptio", "Lich Zombie", "Lich Zombie descriptio")
+    }
+    subInitMalus(id: string, mat: Unit, typeName: string,
+        name1: string, descr1: string, name2: string, descr2: string, name3: string, descr3: string) {
+        const m1 = new Unit(id + "%1", name1, descr1, this)
+        const m2 = new Unit(id + "%2", name2, descr2, this)
+        const m3 = new Unit(id + "%3", name3, descr3, this)
+        this.productionTable.push(new Production(m1, mat, new Decimal(-1), this))
+        this.productionTable.push(new Production(m2, m1, new Decimal(0.01), this))
+        this.productionTable.push(new Production(m3, m2, new Decimal(0.01), this))
+
+        m1.alwaysOn = true
+        m1.malus = true
+        m1.productionIndep = true
+        m2.alwaysOn = true
+        m2.malus = true
+        m2.productionIndep = true
+        m3.alwaysOn = true
+        m3.malus = true
+        m3.productionIndep = true
+
+        const list = new TypeList(typeName)
+        list.list = [m1, m2, m3]
+        this.malusLists.push(list.list)
+        this.mainLists.push(list)
     }
     initPrestige() {
         this.teamPrestige = new Prestige("teP", "Team Bonus", "+20% team bonus", this)
@@ -663,6 +679,17 @@ export class Game {
         this.spellPrestigePower = new Prestige("stP", "Spell Power", "+20% spell power", this)
         this.spellPrestigeTime = new Prestige("spP", "Spell Duration", "+20% spell duration", this)
         this.prestigeGrups.push(new PrestigeGroupModel("spell", "Spell", "Spell", [this.spellPrestigePower, this.spellPrestigeTime]))
+
+        this.betterWorlds = new Prestige("btwol", "Better Village", "+20% village gain multiplier (only in new generated worlds)", this)
+        this.prestigeGrups.push(new PrestigeGroupModel("village", "Village", "Village", [this.betterWorlds]))
+
+        this.workList.list.forEach(w => {
+            const follower = new Prestige(w.id + "9F", w.name + " follower",
+                "5 " + w.name + " on new villages", this)
+            this.follower.push(follower)
+        })
+        this.prestigeGrups.push(new PrestigeGroupModel("follower", "Follower", "Follower", this.follower))
+
     }
     initMages() {
         const golemList = new TypeList("Golem"); this.mainLists.push(golemList)
@@ -676,14 +703,6 @@ export class Game {
             [], this)
 
         const golemMat = [this.wood, this.stone, this.metal]
-
-        this.monk = new Unit("Monk", "Monk", "Ora et labora", this)
-        this.productionTable.push(new Production(this.monk, this.food, new Decimal(1), this))
-        this.productionTable.push(new Production(this.monk, this.mana, new Decimal(1), this))
-        this.monk.createBuy([new Cost(this.food, new Decimal(50))])
-        this.monk.createBoost([new Cost(this.science, this.scienceCost1, this.expTeam)])
-        this.monk.createHire([new Cost(this.science, this.scienceCost1, this.expHire)])
-        this.workList.list.push(this.monk)
 
         golemMat.forEach(mat => {
             const golem = new Unit(mat.id + "Gol", mat.name + " Golem", mat.name + " Golem", this)
@@ -730,6 +749,14 @@ export class Game {
             [new Cost(this.science, new Decimal(1))], [empowerGolem], this)
         golemList.list.forEach(g => g.producs[0].bonus.push(empowerGolem))
         mainApprenticeRes.toUnlock.push(empowerGolem)
+
+        this.monk = new Unit("Monk", "Monk", "Ora et labora", this)
+        this.productionTable.push(new Production(this.monk, this.food, new Decimal(1), this))
+        this.productionTable.push(new Production(this.monk, this.mana, new Decimal(1), this))
+        this.monk.createBuy([new Cost(this.food, new Decimal(50))])
+        this.monk.createBoost([new Cost(this.science, this.scienceCost1, this.expTeam)])
+        this.monk.createHire([new Cost(this.science, this.scienceCost1, this.expHire)])
+        golemList.list.push(this.monk)
 
     }
     initVillTypes() { }
@@ -817,6 +844,15 @@ export class Game {
             this.dwarfRes.toUnlock.push(new Research(i + "dwR1*", d.name, d.description,
                 [new Cost(this.science, new Decimal(100 + 50 * i))], [d], this))
         }
+
+        const dwarfBon = new Bonus("dwBon", "Mining",
+            "x10 metal per mine; 20 sec",
+            this, new Decimal(10), this.mine, false, "x10 metal x mine")
+        dwarfBon.createActiveAct(new Decimal(1), new Decimal(100))
+        const dwarfBonRes = new Research("dwBRes", dwarfBon.name, dwarfBon.description,
+            [new Cost(this.science, new Decimal(1E4))], [dwarfBon], this)
+        this.metal.bonus.push(dwarfBon)
+        this.dwarfRes.toUnlock.push(dwarfBon)
 
     }
     initResBonus() {

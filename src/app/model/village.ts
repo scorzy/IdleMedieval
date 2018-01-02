@@ -22,15 +22,20 @@ export class Village {
         game.setMaxLevel()
         const min = game.minUser
         const max = game.maxUser
-        village.level = new Decimal(min + Math.floor(Math.random() * (max - min)))
+        village.level = new Decimal(min + Math.floor(Math.random() * (max - min + 1)))
 
         const prefix = VillagePrefix[Math.floor(Math.random() * VillagePrefix.length)]
-        village.gainMulti = prefix.gainMulti
+        prefix.gainMulti.forEach(g =>
+            village.gainMulti.push([g[0], g[1].plus(g[1].times(game.betterWorlds.quantity).times(0.2))])
+        )
         village.name = prefix.name
-
-        //    Bonus and Malus
         village.avaiableRaces.push(Races[Math.floor(Math.random() * Races.length)])
-        village.malus.push(Malus[Math.floor(Math.random() * Malus.length)])
+
+        //    Malus
+        if (village.level.greaterThanOrEqualTo(1)) {
+            village.malus.push(Malus[Math.floor(Math.random() * Malus.length)])
+            village.name = village.name + " of " + village.malus
+        }
 
         //    Orders
         let unusedMat = game.matList.list

@@ -106,6 +106,7 @@ export class Action extends Base {
         super.load(data)
         if (data.own)
             this.owned = data.own
+        this.realPriceNow = this.getCosts()
     }
     reloadStrings() {
         let reqNum = !this.game.buyMulti || this.game.buyMulti < 1 ? new Decimal(1) :
