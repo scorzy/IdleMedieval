@@ -4,7 +4,7 @@ import { Races } from 'app/model/types'
 
 export class TypeList {
     isCollapsed = true
-    isEnding = false
+    notEnought = false
     uiList = new Array<Unit>()
 
     constructor(

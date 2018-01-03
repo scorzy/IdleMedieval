@@ -207,6 +207,9 @@ export class Game {
             this.resList.filter(r => r.unlocked).forEach(r => { r.reloadMaxBuy(); r.reloadStrings() })
         if (this.activeUnit)
             this.activeUnit.actions.forEach(a => a.reloadStrings())
+        this.mainListsUi.forEach(l => {
+            l.notEnought = !!l.uiList.find(u => u.notEnought)
+        })
     }
     getSave(): any {
         const data: any = {}
@@ -389,8 +392,6 @@ export class Game {
         }))
         this.activeUnits = this.allUnit.filter(u => u.unlocked && !u.prestige)
         this.reload()
-        // this.matList.list.forEach(m => m.quantity = new Decimal(1E20))
-        // this.honor.quantity = new Decimal(1E20)
 
         // follower
         const l = this.workList.list.length
@@ -400,18 +401,22 @@ export class Game {
             worker.quantity = worker.quantity.plus(follower.quantity)
         }
         this.unlockUnits(this.workList.list.filter(u => u.quantity.greaterThanOrEqualTo(1)))
+        this.setRandomVillage(true)
+
+        this.matList.list.forEach(m => m.quantity = new Decimal(1E20))
+        this.honor.quantity = new Decimal(1E20)
     }
     // endregion
 
     // region stuff
     initResouces() {
-        this.food = new Unit("food", "Food", "Food descriptio", this)
-        this.wood = new Unit("wood", "Wood", "Wood descriptio", this)
-        this.stone = new Unit("stone", "Stone", "Stone descriptio", this)
-        this.metal = new Unit("metal", "Metal", "Metal descriptio", this)
-        this.gold = new Unit("gold", "Gold", "Gold descriptio", this)
-        this.science = new Unit("science", "Science", "Science descriptio", this)
-        this.mana = new Unit("mana", "Mana", "Mana descriptio", this)
+        this.food = new Unit("food", "Food", "Food is used to ", this)
+        this.wood = new Unit("wood", "Wood", "Wood is used to make buldings.", this)
+        this.stone = new Unit("stone", "Stone", "Stone is used to make better buldings.", this)
+        this.metal = new Unit("metal", "Metal", "Metal usually is used to make weapons.", this)
+        this.gold = new Unit("gold", "Gold", "Gold is the main cuerrency.", this)
+        this.science = new Unit("science", "Science", "Science is used to discover new things.", this)
+        this.mana = new Unit("mana", "Mana", "Mana is used to cast spells.", this)
 
         this.matList = new TypeList("Materials")
         this.matList.list.push(this.food, this.wood, this.stone, this.metal, this.science, this.mana, this.gold)
@@ -419,14 +424,14 @@ export class Game {
     }
     initWorkers() {
         //    Templar
-        this.templar = new Unit("soldier", "Soldier", "Soldier description", this)
+        this.templar = new Unit("soldier", "Templar", "Templar are veteran soldiers.", this)
         this.templar.productionIndep = true
         this.templar.createBuy([new Cost(this.food, new Decimal(1E3)), new Cost(this.gold, new Decimal(500))])
         this.templar.createBoost([new Cost(this.science, this.scienceCost1, this.expTeam)])
         this.templar.createHire([new Cost(this.science, this.scienceCost1, this.expHire)])
 
         //    Soldier
-        this.soldier = new Unit("soldier", "Soldier", "Soldier description", this)
+        this.soldier = new Unit("soldier", "Soldier", "Soldiers are the main unit of your army.", this)
         this.soldier.productionIndep = true
         this.soldier.createBuy([new Cost(this.food, new Decimal(100))])
         this.soldier.createBoost([new Cost(this.science, this.scienceCost1, this.expTeam)])
@@ -604,31 +609,32 @@ export class Game {
         // endregion
 
         // region soldier
-        const templarRes = new Research("orderRes", "Templars", "Templars",
+        const templarRes = new Research("orderRes", "Templars", "Templars kill malus",
             [new Cost(this.science, new Decimal(10))], [this.templar], this)
-        const soldierRes = new Research("orderRes", "Soldiers", "Soldiers",
+        const soldierRes = new Research("orderRes", "Soldiers", "Soldiers kill malus",
             [new Cost(this.science, new Decimal(10))], [templarRes, this.soldier], this)
         // endregion
 
         // region Workers
-        this.orderRes = new Research("orderRes", "Orders", "Orders",
+        this.orderRes = new Research("orderRes", "Orders", "Complete order to gain honor",
             [new Cost(this.science, new Decimal(1500))], [], this)
         this.initOver()
         this.orderRes.toUnlock.push(this.honor, this.ordTab, this.vilTab, this.travelTab, this.mainBuldingRes)
+        this.mainBuldingRes.toUnlock.push(calthRes)
 
-        const blackRes = new Research("blackRes", "Blacksmitting", "Blacksmitting",
-            [new Cost(this.science, new Decimal(800))], [this.blacksmith, this.gold, this.orderRes, calthRes], this)
+        const blackRes = new Research("blackRes", "Blacksmitting", "Unlock gold and blacksmiths",
+            [new Cost(this.science, new Decimal(800))], [this.blacksmith, this.gold, this.orderRes], this)
 
-        const manaRes = new Research("manaRes", "Mana", "Mana",
+        const manaRes = new Research("manaRes", "Mana", "Unlock mana, mages and spells",
             [new Cost(this.science, new Decimal(400))], [this.mage, this.mana, blackRes, bigHunt, this.spellTab], this)
 
-        const metalRes = new Research("meRe", "Metal", "Metal",
+        const metalRes = new Research("meRe", "Metal", "Unlocks metal and miners",
             [new Cost(this.science, new Decimal(200))], [this.miner, this.metal, manaRes], this)
 
-        const stoneRes = new Research("stoRe", "Quarry", "Quarry",
+        const stoneRes = new Research("stoRe", "Quarry", "Unlocks stone and Quarrymens",
             [new Cost(this.science, new Decimal(100))], [this.quarrymen, this.stone, metalRes, betterHunting], this)
 
-        this.woodRes = new Research("woRe", "Woodcutting", "Woodcutting",
+        this.woodRes = new Research("woRe", "Woodcutting", "Unlocks wood and Lumberjacks",
             [new Cost(this.science, new Decimal(50))], [this.lumberjack, this.wood, stoneRes], this)
         // endregion
     }
@@ -636,23 +642,23 @@ export class Game {
         this.subInitMalus("Z", this.food, "Zombies", "Zombie", "Zombie description",
             "Lord Zombie", "Lord Zombie descriptio", "Lich Zombie", "Lich Zombie descriptio")
 
-        this.subInitMalus("P", this.wood, "Pyromancers", "Pyromancer", "Pyromancer description",
-            "Lord Zombie", "Lord Zombie descriptio", "Lich Zombie", "Lich Zombie descriptio")
+        this.subInitMalus("P", this.wood, "Pyromancers", "Pyromancer", "Pyromancer addept",
+            "Pyromancer", "Lord Zombie descriptio", "Master Pyromancer", "Lich Zombie descriptio")
 
-        this.subInitMalus("T", this.stone, "Gargoyles", "Thief", "Zombie description",
-            "Lord Zombie", "Lord Zombie descriptio", "Lich Zombie", "Lich Zombie descriptio")
+        this.subInitMalus("T", this.stone, "Gargoyles", "Small Gargoyle", "Zombie description",
+            "Demon", "Lord Zombie descriptio", "Evil Demon", "Lich Zombie descriptio")
 
-        this.subInitMalus("G", this.metal, "Golem", "Thief", "Zombie description",
-            "Lord Zombie", "Lord Zombie descriptio", "Lich Zombie", "Lich Zombie descriptio")
+        this.subInitMalus("G", this.metal, "Golem", "Golem", "Zombie description",
+            "Titan", "Lord Zombie descriptio", "Colossus", "Lich Zombie descriptio")
 
         this.subInitMalus("T", this.gold, "Thieves", "Thief", "Zombie description",
-            "Lord Zombie", "Lord Zombie descriptio", "Lich Zombie", "Lich Zombie descriptio")
+            "Expert Thief", "Lord Zombie descriptio", "Thief Guild", "Lich Zombie descriptio")
 
-        this.subInitMalus("S", this.science, "Pseudoscientists", "Thief", "Zombie description",
-            "Lord Zombie", "Lord Zombie descriptio", "Lich Zombie", "Lich Zombie descriptio")
+        this.subInitMalus("S", this.science, "Pseudoscientists", "Village Idiot", "Zombie description",
+            "Pseudoscientist Student", "Lord Zombie descriptio", "Pseudoscientist", "Lich Zombie descriptio")
 
-        this.subInitMalus("E", this.mana, "Heretics", "Thief", "Zombie description",
-            "Lord Zombie", "Lord Zombie descriptio", "Lich Zombie", "Lich Zombie descriptio")
+        this.subInitMalus("E", this.mana, "Heretics", "Witch", "Zombie description",
+            "False Prophet", "Lord Zombie descriptio", "False God", "Lich Zombie descriptio")
     }
     subInitMalus(id: string, mat: Unit, typeName: string,
         name1: string, descr1: string, name2: string, descr2: string, name3: string, descr3: string) {
@@ -703,7 +709,7 @@ export class Game {
                 "+5% " + w.name + " earnings", this)
             this.gain.push(g)
             const bon = new Bonus(w.id + "PR", "Prestige Multi", "Prestige Multiplier",
-                this, new Decimal(1.05), g, true)
+                this, new Decimal(0.05), g, true)
             bon.unlocked = true
             bon.prestige = true
             w.bonus.push(bon)
@@ -986,16 +992,16 @@ export class Game {
     // endregion
 
     createOver(lists: TypeList[], id: string, name: string, first: Research) {
-        const mainCompanyRes = new Research(id + "aCoR", name + " Company", "Company",
-            [new Cost(this.science, new Decimal(5E8))],
+        const mainCompanyRes = new Research(id + "aCoR", name + " Company", name + " Company",
+            [new Cost(this.science, new Decimal(1E16))],
             [], this)
-        const mainGuildRes = new Research(id + "aGuR", name + " Guilds", "Guilds",
-            [new Cost(this.science, new Decimal(5E6))],
+        const mainGuildRes = new Research(id + "aGuR", name + " Guilds", name + " Guilds",
+            [new Cost(this.science, new Decimal(1E10))],
             [mainCompanyRes], this)
-        const mainMasterRes = new Research(id + "aMaR", name + " Master", "Master",
-            [new Cost(this.science, new Decimal(5E4))],
+        const mainMasterRes = new Research(id + "aMaR", name + " Master", name + " Master",
+            [new Cost(this.science, new Decimal(1E6))],
             [mainGuildRes], this)
-        const mainBuldingRes = new Research(id + "aBuR", name + " Buildings", "Buildings",
+        const mainBuldingRes = new Research(id + "aBuR", name + " Buildings", name + " Buildings",
             [new Cost(this.science, new Decimal(2E3))],
             [mainMasterRes], this)
         const res = [first, mainBuldingRes, mainMasterRes, mainGuildRes, mainCompanyRes]
@@ -1058,10 +1064,12 @@ export class Game {
             mainCompanyRes.toUnlock.push(compRes)
         }
         const prices = [new Decimal(5E3), new Decimal(5E4), new Decimal(5E8), new Decimal(5E12), new Decimal(5E16)]
+        const names = ["Workers", "Buildings", "Masters", "Guilds", "Companies"]
         for (let i = 0; i < 5; i++) {
             const research = res[i]
             const list = lists[i]
-            const allBonRes = new Research(id + "ù" + i, name + " Bonus", name + " Bonus",
+            const n = name + names[i] + " Bonus"
+            const allBonRes = new Research(id + "ù" + i, n, n,
                 [new Cost(this.science, prices[i].div(2))], [], this)
             research.toUnlock.push(allBonRes)
             list.list.forEach(work => {

@@ -1,39 +1,42 @@
-<h1>Save</h1>
-<div>
-    <p>
-        Game autosaves every minute. You can also maually save, load and export savegames. Saves are stored in
-        localstorage.
-    </p>
-    <strong>Clear button deletes everything !</strong>
+<div class="row">
+    <div class="col-xs-12 col-md-12 col-lg-12 col-xl-12">
+        <h1 class="text-capitalize no-mg-top">Save</h1>
+        <div>
+            <p>
+                Game autosaves every minute. You can also maually save, load and export savegames. Saves are stored in localstorage.
+            </p>
+            <strong>Clear button deletes everything !</strong>
 
-    <div class="form-group">
-        <button class="btn btn-success" (click)="save($event)">Save</button>
-        <button class="btn btn-primary" (click)="load($event)">Load</button>
-        <button class="btn btn-danger" (click)="open = true" >Clear</button>
+            <div class="form-group">
+                <button class="btn btn-success" (click)="save($event)">Save</button>
+                <button class="btn btn-primary" (click)="load($event)">Load</button>
+                <button class="btn btn-danger" (click)="open = true">Clear</button>
+            </div>
+            <div class="form-group">
+                <h5>Export / Import Save</h5>
+                <label for="save">Save</label>
+                <textarea ref-textarea class="form-control" rows="1" id="save" [(ngModel)]="stringSave"></textarea>
+                <button class="btn btn-success" (click)="export($event)">Export</button>
+                <button class="btn btn-primary" (click)="import($event)">Import</button>
+            </div>
+            <div class="toggle-switch">
+                <input type="checkbox" id="toggle_1" [(ngModel)]="service.options.hsn">
+                <label for="toggle_1">Hide success save notification</label>
+            </div>
+            <br/>
+            <span>Version: {{service.game.gameVersion}}</span>
+        </div>
+
+
+        <clr-modal [(clrModalOpen)]="open">
+            <h3 class="modal-title">Crear</h3>
+            <div class="modal-body">
+                <p>clear will delete everything, including your saeve. Continue ?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline" (click)="open = false">Cancel</button>
+                <button type="button" class="btn btn-danger" (click)="clear($event)">Clear</button>
+            </div>
+        </clr-modal>
     </div>
-    <div class="form-group">
-        <h5>Export / Import Save</h5>
-        <label for="save">Save</label>
-        <textarea ref-textarea class="form-control" rows="1" id="save" [(ngModel)]="stringSave"></textarea>
-        <button class="btn btn-success" (click)="export($event)">Export</button>
-        <button class="btn btn-primary" (click)="import($event)">Import</button>
-    </div>
-    <div class="toggle-switch">
-        <input type="checkbox" id="toggle_1" [(ngModel)]="service.options.hsn">
-        <label for="toggle_1">Hide success save notification</label>
-    </div>
-    <br/>
-    <span>Version: {{service.game.gameVersion}}</span>
 </div>
-
-
-<clr-modal [(clrModalOpen)]="open">
-    <h3 class="modal-title">Crear</h3>
-    <div class="modal-body">
-        <p>clear will delete everything, including your saeve. Continue ?</p>
-    </div>
-    <div class="modal-footer">
-        <button type="button" class="btn btn-outline" (click)="open = false">Cancel</button>
-        <button type="button" class="btn btn-danger" (click)="clear($event)">Clear</button>
-    </div>
-</clr-modal>

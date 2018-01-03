@@ -23,13 +23,22 @@ export class Village {
         const min = game.minUser
         const max = game.maxUser
         village.level = new Decimal(min + Math.floor(Math.random() * (max - min + 1)))
+        village.avaiableRaces.push(Races[0])
+        village.avaiableRaces.push(Races[1 + Math.floor(Math.random() * (Races.length - 1))])
 
+        //  Prefix
         const prefix = VillagePrefix[Math.floor(Math.random() * VillagePrefix.length)]
         prefix.gainMulti.forEach(g =>
             village.gainMulti.push([g[0], g[1].plus(g[1].times(game.betterWorlds.quantity).times(0.2))])
         )
         village.name = prefix.name
-        village.avaiableRaces.push(Races[Math.floor(Math.random() * Races.length)])
+
+        //  Type
+        const type = VillageTypes[Math.floor(Math.random() * VillageTypes.length)]
+        type.gainMulti.forEach(g =>
+            village.gainMulti.push([g[0], g[1].plus(g[1].times(game.betterWorlds.quantity).times(0.2))])
+        )
+        village.name += " " + type.name
 
         //    Malus
         if (village.level.greaterThanOrEqualTo(1)) {
@@ -134,7 +143,32 @@ export class Village {
             new Village("Magic", [], [], [],
                 [[game.mana, new Decimal(3)]]),
             new Village("Rich", [], [], [],
-                [[game.gold, new Decimal(3)]])
+                [[game.gold, new Decimal(3)]]),
+            new Village("Hunting", [], [], [],
+                [[game.hunter, new Decimal(2)]]),
+            new Village("Woodcutting", [], [], [],
+                [[game.lumberjack, new Decimal(2)]]),
+            new Village("Quarrying", [], [], [],
+                [[game.stone, new Decimal(2)]]),
+            new Village("Mining", [], [], [],
+                [[game.metal, new Decimal(2)]])
+        )
+
+        VillageTypes.push(
+            new Village("Farm", [], [], [],
+                [[game.food, new Decimal(3)]]),
+            new Village("Forest", [], [], [],
+                [[game.wood, new Decimal(3)]]),
+            new Village("Quarry", [], [], [],
+                [[game.stone, new Decimal(3)]]),
+            new Village("Mine", [], [], [],
+                [[game.metal, new Decimal(3)]]),
+            new Village("University", [], [], [],
+                [[game.science, new Decimal(3)]]),
+            new Village("Tower", [], [], [],
+                [[game.mana, new Decimal(3)]]),
+            new Village("Castle", [], [], [],
+                [[game.gold, new Decimal(3)]]),
         )
     }
 

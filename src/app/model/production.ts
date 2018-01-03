@@ -35,7 +35,7 @@ export class Production extends Base {
         //    Unit Bonus
         if (this.rateo.greaterThan(0)) {
             bonus = bonus.plus(this.product.totBonus)
-            bonus = bonus.plus(this.productor.totBonusProd)
+            // bonus = bonus.plus(this.productor.totBonusProd)
         }
 
         this.prodPerSec = this.prodPerSec.times(bonus)

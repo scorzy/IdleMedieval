@@ -1,7 +1,7 @@
-import { Pipe, PipeTransform } from '@angular/core';
-import { Decimal } from 'decimal.js';
-import * as numberformat from 'swarm-numberformat';
+import { Pipe, PipeTransform } from '@angular/core'
+import * as numberformat from 'swarm-numberformat'
 import { ServService } from 'app/serv.service'
+import * as Decimal from 'break_infinity.js'
 
 
 @Pipe({ name: 'format' })

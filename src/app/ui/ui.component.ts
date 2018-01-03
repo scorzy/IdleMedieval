@@ -1,5 +1,5 @@
 import { ServService } from 'app/serv.service';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, HostBinding } from '@angular/core';
 declare let setCss: any
 
 @Component({
@@ -8,6 +8,7 @@ declare let setCss: any
     styleUrls: ['./ui.component.scss']
 })
 export class UiComponent implements OnInit {
+    @HostBinding('class.content-area') className = 'content-area'
 
     constructor(public gameService: ServService) { }
 
