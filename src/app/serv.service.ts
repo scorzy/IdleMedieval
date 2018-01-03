@@ -36,7 +36,7 @@ export class ServService {
                 setTimeout(() => {
                     try {
                         console.log("Kongregate build")
-                        
+
                         this.sendKong()
                         this.isKongregate = true
                         this.sub = this.game.travelEmitter.subscribe(a => this.sendKong())

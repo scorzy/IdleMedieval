@@ -312,6 +312,7 @@ export class Game {
             u.notEnought = false
             u.actions.forEach(a => a.owned = false)
             u.worldBonus = new Decimal(0)
+            u.actions.forEach(a => a.realPriceNow = a.getCosts())
         })
         this.productionTable.forEach(p => p.unlocked = p.defUnlocked)
         this.resList.forEach(res => { res.owned = false })
