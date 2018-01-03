@@ -32,7 +32,7 @@
             <span>Resource Multipliers: </span>
             <ul>
                 <li *ngFor="let g of village.gainMulti">
-                    {{g[0].name}} x {{g[1] | format}}
+                    {{g[0].name}} + {{g[1].times(100) | format}} %
                 </li>
             </ul>
         </div>
@@ -48,6 +48,17 @@
 
     </div>
 </div>
-<div class="card-footer">
-    <button class="btn btn-sm btn-link" (click)="found()">Found</button>
+<div class="card-footer" *ngIf="!home">
+    <button class="btn btn-sm btn-link" (click)="open = true">Found</button>
 </div>
+
+<clr-modal [(clrModalOpen)]="open">
+    <h3 class="modal-title">Found a new Village</h3>
+    <div class="modal-body">
+        <p>By found a new village you will lose everything expept honor upgrade.</p>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-outline" (click)="open = false">Cancel</button>
+        <button type="button" class="btn btn-danger" (click)="found()">Found</button>
+    </div>
+</clr-modal>

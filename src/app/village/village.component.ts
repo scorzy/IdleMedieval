@@ -16,6 +16,7 @@ export class VillageComponent implements OnInit {
 
     @Input() village: Village
     @Input() home = false
+    open = false
 
     constructor(public gs: ServService) {
         this.village = gs.game.village
