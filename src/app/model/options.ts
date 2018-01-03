@@ -8,6 +8,8 @@ export class Options {
     hsn = false
     spellSide = false
     noNew = false
+    width = 0
+    height = 0
 
     constructor(
     ) { }
@@ -28,6 +30,10 @@ export class Options {
             this.spellSide = data.spellSide
         if (data.noNew)
             this.noNew = data.noNew
+        if (data.width)
+            this.width = data.width
+        if (data.height)
+            this.height = data.height
     }
 
 }

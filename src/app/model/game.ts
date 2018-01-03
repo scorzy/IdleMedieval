@@ -18,6 +18,7 @@ export class Game {
     gameVersion = "0.0.0"
 
     researchsObs: EventEmitter<number> = new EventEmitter<number>()
+    travelEmitter: EventEmitter<number> = new EventEmitter<number>()
 
     allMap = new Map<string, Base>()
     allArr = new Array<Base>()
@@ -403,8 +404,8 @@ export class Game {
         this.unlockUnits(this.workList.list.filter(u => u.quantity.greaterThanOrEqualTo(1)))
         this.setRandomVillage(true)
 
-        this.matList.list.forEach(m => m.quantity = new Decimal(1E20))
-        this.honor.quantity = new Decimal(1E20)
+        // this.matList.list.forEach(m => m.quantity = new Decimal(1E20))
+        // this.honor.quantity = new Decimal(1E20)
     }
     // endregion
 

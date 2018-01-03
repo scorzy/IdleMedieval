@@ -7,6 +7,4 @@ import { Component, HostBinding } from '@angular/core';
 export class AboutComponent {
     @HostBinding('class.content-area') className = 'content-area'
 
-    open: Boolean = false;
-
 }

@@ -2,7 +2,7 @@
 
     <clr-tree-node *ngFor="let list of gameService.game.mainListsUi; trackBy:getListId">
         <span class="font-weight-bold">
-            <clr-icon class="alert-icon is-error" shape="exclamation-triangle" *ngIf="list.isEnding"></clr-icon>
+            <clr-icon class="is-error" shape="warning-standard" *ngIf="list.notEnought"></clr-icon>
             {{list.type}}
         </span>
 

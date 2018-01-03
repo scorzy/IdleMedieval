@@ -6,12 +6,18 @@ import { ClarityIcons } from '@clr/icons';
 import { Message } from 'primeng/components/common/api';
 import { GrowlModule } from 'primeng/primeng';
 import { ToastsManager } from 'ng2-toastr';
+import * as Decimal from 'break_infinity.js'
+
+declare let kongregateAPI
 
 @Injectable()
 export class ServService {
 
     game: Game
     options = new Options()
+    kongregate: any
+    isKongregate = false
+    sub: any
 
     constructor(public toastr: ToastsManager
     ) {
@@ -19,6 +25,29 @@ export class ServService {
         this.load()
         setInterval(this.update.bind(this), 250)    // 250
         setInterval(this.save.bind(this), 60000)
+
+        if (typeof kongregateAPI !== 'undefined') {
+            kongregateAPI.loadAPI(() => {
+
+                this.kongregate = kongregateAPI.getAPI();
+                console.log("KongregateAPI Loaded");
+                this.setSize()
+                //  this.kongregate.services.resizeGame(1920, 1080)
+                setTimeout(() => {
+                    try {
+                        console.log("Kongregate build")
+                        
+                        this.sendKong()
+                        this.isKongregate = true
+                        this.sub = this.game.travelEmitter.subscribe(a => this.sendKong())
+                    } catch (e) {
+                        console.log("Error: " + e.message)
+                    }
+                }, 1 * 1000)
+
+            })
+        } else
+            console.log("Github build")
     }
 
     update() {
@@ -76,6 +105,27 @@ export class ServService {
         localStorage.clear()
         this.game = new Game(this.options)
         window.location.reload()
+    }
+
+    nonInfinite(num: Decimal): number {
+        const level = num.toNumber()
+        return level < Number.POSITIVE_INFINITY && level < 137438953470 ? level : 0
+    }
+
+    sendKong() {
+        try {
+            this.kongregate.stats.submit('Honor', this.nonInfinite(this.game.lifePrestige))
+            console.log("Prestige sent: " + this.nonInfinite(this.game.lifePrestige))
+        } catch (e) {
+            console.log("Error: " + e.message)
+        }
+
+    }
+    setSize() {
+        if (this.options.width > 1050 && this.options.height > 700) {
+            console.log("Window Size: " + this.options.width + " " + this.options.height)
+            this.kongregate.services.resizeGame(this.options.width, this.options.height)
+        }
     }
 
 }
