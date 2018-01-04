@@ -239,6 +239,8 @@ export class Game {
         if (data.l)
             this.lifePrestige = new Decimal(data.l)
         this.reloadAll()
+        this.village.gainMulti.forEach(g => g[0].worldBonus = g[1])
+
     }
     reloadAll() {
         this.activeUnits = this.allUnit.filter(u => u.unlocked && !u.prestige)
