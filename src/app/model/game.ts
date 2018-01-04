@@ -1051,13 +1051,13 @@ export class Game {
             lists[3].list.push(guild)
             lists[4].list.push(company)
 
-            const buildRes = new Research(worker.id + "^1", building.name, building.description,
+            const buildRes = new Research(worker.id + "^1", building.name, "Unlock " + building.name,
                 [new Cost(this.science, new Decimal(5E3))], [building], this)
-            const masterRes = new Research(worker.id + "^2", master.name, master.description,
+            const masterRes = new Research(worker.id + "^2", master.name, "Unlock " + master.name,
                 [new Cost(this.science, new Decimal(1E7))], [master], this)
-            const guildRes = new Research(worker.id + "^3", guild.name, guild.description,
+            const guildRes = new Research(worker.id + "^3", guild.name, "Unlock " + guild.name,
                 [new Cost(this.science, new Decimal(1E11))], [guild], this)
-            const compRes = new Research(worker.id + "^4", company.name, company.description,
+            const compRes = new Research(worker.id + "^4", company.name, "Unlock " + company.name,
                 [new Cost(this.science, new Decimal(1E16))], [company], this)
 
             mainBuldingRes.toUnlock.push(buildRes)
