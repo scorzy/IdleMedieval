@@ -217,13 +217,13 @@ export class Game {
         data.un = this.allArr.map(u => u.getData())
         data.v = this.village.getSave()
         data.l = this.lifePrestige
-        console.log(data)
+        // console.log(data)
         return data
     }
     load(data: any) {
         this.worldReset()
         if (data.un) {
-            console.log(data)
+            // console.log(data)
             data.un.forEach(e => {
                 let base: Base = null
                 if (e.i) {

@@ -115,15 +115,15 @@ export class ServService {
     sendKong() {
         try {
             this.kongregate.stats.submit('Honor', this.nonInfinite(this.game.lifePrestige))
-            console.log("Prestige sent: " + this.nonInfinite(this.game.lifePrestige))
+            // console.log("Prestige sent: " + this.nonInfinite(this.game.lifePrestige))
         } catch (e) {
-            console.log("Error: " + e.message)
+            // console.log("Error: " + e.message)
         }
 
     }
     setSize() {
         if (this.options.width > 1050 && this.options.height > 700) {
-            console.log("Window Size: " + this.options.width + " " + this.options.height)
+            // console.log("Window Size: " + this.options.width + " " + this.options.height)
             this.kongregate.services.resizeGame(this.options.width, this.options.height)
         }
     }
