@@ -15,7 +15,7 @@ import { PrestigeGroupModel } from './prestigeGroupModel'
 import { Options } from 'app/model/options';
 
 export class Game {
-    gameVersion = "0.0.0"
+    gameVersion = "0.0.1"
 
     researchsObs: EventEmitter<number> = new EventEmitter<number>()
     travelEmitter: EventEmitter<number> = new EventEmitter<number>()
