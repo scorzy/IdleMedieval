@@ -129,7 +129,6 @@ export class Game {
         this.initBuldings()
         this.initResearchs()
         this.initMages()
-        this.initVillTypes()
         this.initDwarf()
         this.initElves()
 
@@ -194,10 +193,18 @@ export class Game {
             u.reloadProd()
             u.reloadBoost()
             u.totalProducers = new Decimal(u.madeByActive.length)
+            u.lastTotalPerSec = u.totalPerSec
             u.totalPerSec = new Decimal(0)
             u.madeByActive.forEach(p =>
                 u.totalPerSec = u.totalPerSec.plus(p.prodPerSec.times(p.productor.quantity))
             )
+            u.increasing = false
+            u.descreasing = false
+            if (u.totalPerSec.greaterThan(u.lastTotalPerSec))
+                u.increasing = true
+            else if (u.lastTotalPerSec.greaterThan(u.totalPerSec))
+                u.descreasing = true
+
             u.actions.forEach(a => a.reloadMaxBuy())
             u.avActions = u.actions.filter(a => a.unlocked)
             u.showUp = u.boostAction && u.boostAction.show && u.boostAction.maxBuy.greaterThanOrEqualTo(1) ||
@@ -402,7 +409,7 @@ export class Game {
         for (let i = 0; i < l; i++) {
             const worker = this.workList.list[i]
             const follower = this.follower[i]
-            worker.quantity = worker.quantity.plus(follower.quantity)
+            worker.quantity = worker.quantity.plus(follower.quantity.times(5))
         }
         this.unlockUnits(this.workList.list.filter(u => u.quantity.greaterThanOrEqualTo(1)))
         this.setRandomVillage(true)
@@ -789,7 +796,6 @@ export class Game {
         golemList.list.push(this.monk)
 
     }
-    initVillTypes() { }
     initDwarf() {
         const dwarfList = new TypeList("Dwarfs"); this.mainLists.push(dwarfList)
         const dwarfList2 = new TypeList("Dwarfs Buildings"); this.mainLists.push(dwarfList2)

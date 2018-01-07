@@ -79,7 +79,8 @@
                     </span>
 
                     <span class="perSecTab small">
-                        <span *ngIf="g.realtotalPerSec.abs().greaterThan(0.001)">
+                        <span *ngIf="g.realtotalPerSec.abs().greaterThan(0.001)"
+                        [ngClass]="{'in': g.increasing,'de': g.descreasing}">
                             {{g.totalPerSec | format}}/s
                         </span>
                     </span>

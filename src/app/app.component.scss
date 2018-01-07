@@ -91,3 +91,11 @@
 :host /deep/ .no-mg-top {
     margin-top: 0px !important;
 }
+
+:host /deep/ .in {
+    color: green!important;
+}
+
+:host /deep/ .de {
+    color: red!important;
+}

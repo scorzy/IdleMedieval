@@ -20,9 +20,12 @@ export class Unit extends Base {
 
     showUp = false
     totalPerSec = new Decimal(0)
+    lastTotalPerSec = new Decimal(0)
     totalProducers = new Decimal(0)
     realtotalPerSec = new Decimal(0)
     notEnought = false
+    increasing = false
+    descreasing = false
 
     boost = new Decimal(1)
     boostAction: Action
