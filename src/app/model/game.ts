@@ -916,8 +916,8 @@ export class Game {
         this.woodElf = new Unit("efl1", "Wood Elf", "Wood Elf", this)
         this.productionTable.push(new Production(this.woodElf, this.wood, new Decimal(1), this))
         this.woodElf.createBuy([new Cost(this.food, new Decimal(20))])
-        this.woodElf.createBoost([new Cost(this.science, this.scienceCost2, this.expTeam)])
-        this.woodElf.createHire([new Cost(this.science, this.scienceCost2, this.expHire)])
+        this.woodElf.createBoost([new Cost(this.science, this.scienceCost1, this.expTeam)])
+        this.woodElf.createHire([new Cost(this.science, this.scienceCost1, this.expHire)])
         elfList.list.push(this.woodElf)
 
         const elf2 = new Unit("efl2", "Elf Hunter", "Elf Hunter", this)
