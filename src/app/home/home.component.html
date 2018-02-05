@@ -21,7 +21,9 @@
                             {{g.name}}</span>
                         <span class="perSec">
                             <span *ngIf="g.realtotalPerSec.abs().greaterThan(0.001)" [ngClass]="{'in': g.increasing,'de': g.descreasing}">
-                                {{g.realtotalPerSec | format:true}}/s
+                                <small>
+                                    {{g.realtotalPerSec | format:true}}/s
+                                </small>
                             </span>
                         </span>
                         <span>{{g.quantity | format:true}}</span>

@@ -123,7 +123,7 @@ export class Village {
                     this.kingOrders[i].quantity = new Decimal(data.vo[i][1])
                 }
 
-        this.kingOrders.forEach(k => { k.realPriceNow = k.getCosts(); k.reloadMaxBuy(); k.reloadStrings() })
+        this.kingOrders.forEach(k => { k.realPriceNow = k.getCosts(); k.reloadMaxBuy(); k.reloadStrings(); k.fixName() })
 
     }
 

@@ -285,6 +285,9 @@ export class KingOrder extends Action {
         }
         return false
     }
+    fixName() {
+        this.name = this.price[0].what.name + " Order"
+    }
 }
 
 export class Prestige extends Action {
