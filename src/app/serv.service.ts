@@ -1,11 +1,11 @@
-import { Options } from './model/options';
-import { Injectable } from '@angular/core';
-import { Game } from './model/game';
-import * as LZString from 'lz-string';
-import { ClarityIcons } from '@clr/icons';
-import { Message } from 'primeng/components/common/api';
-import { GrowlModule } from 'primeng/primeng';
-import { ToastsManager } from 'ng2-toastr';
+import { Options } from './model/options'
+import { Injectable } from '@angular/core'
+import { Game } from './model/game'
+import * as LZString from 'lz-string'
+import { ClarityIcons } from '@clr/icons'
+import { Message } from 'primeng/components/common/api'
+import { GrowlModule } from 'primeng/primeng'
+import { ToastsManager } from 'ng2-toastr'
 import * as Decimal from 'break_infinity.js'
 
 declare let kongregateAPI
@@ -22,7 +22,8 @@ export class ServService {
     constructor(public toastr: ToastsManager
     ) {
         this.game = new Game(this.options)
-        this.load()
+        setTimeout(this.load.bind(this), 1)
+        // this.load()
         setInterval(this.update.bind(this), 250)    // 250
         setInterval(this.save.bind(this), 60000)
 
@@ -92,7 +93,8 @@ export class ServService {
         try {
             if (typeof (Storage) !== 'undefined') {
                 const saveRaw = localStorage.getItem('save')
-                this.import(saveRaw)
+                if (!!saveRaw)
+                    this.import(saveRaw)
             } else {
                 this.toastr.warning("Cannot access localstorage", "Not Loaded")
             }
