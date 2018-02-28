@@ -12,8 +12,8 @@
 
 
     <!--JQuery - temp, will be removed  -->
-    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha256-k2WSCIexGzOj3Euiig+TlR8gA0EmPjuc79OEeY5L45g="
-        crossorigin="anonymous"></script>
+    <!-- <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha256-k2WSCIexGzOj3Euiig+TlR8gA0EmPjuc79OEeY5L45g="
+        crossorigin="anonymous"></script> -->
 
     <link rel="stylesheet" type="text/css" href="clr-ui.min.css" id="lightCss" />
     <link rel="stylesheet" type="text/css" href="start.css" id="lightCss2" />
@@ -33,40 +33,40 @@
         }
 
         preventScroll = function () {
-            setTimeout(function () {
-                $('.nav-content, .content-area').on('DOMMouseScroll mousewheel', function (ev) {
-                    // console.log("scroll")
-                    body = $('body')[0]
-                    var $this = $(this),
-                        scrollTop = this.scrollTop,
-                        scrollHeight = this.scrollHeight,
-                        height = $this.innerHeight(),
-                        delta = (ev.type == 'DOMMouseScroll' ?
-                            ev.originalEvent.detail * -40 :
-                            ev.originalEvent.wheelDelta),
-                        up = delta > 0;
+            // setTimeout(function () {
+            //     $('.nav-content, .content-area').on('DOMMouseScroll mousewheel', function (ev) {
+            //         // console.log("scroll")
+            //         body = $('body')[0]
+            //         var $this = $(this),
+            //             scrollTop = this.scrollTop,
+            //             scrollHeight = this.scrollHeight,
+            //             height = $this.innerHeight(),
+            //             delta = (ev.type == 'DOMMouseScroll' ?
+            //                 ev.originalEvent.detail * -40 :
+            //                 ev.originalEvent.wheelDelta),
+            //             up = delta > 0;
 
-                    var prevent = function () {
-                        // console.log("prevent")
-                        ev.stopPropagation();
-                        ev.preventDefault();
-                        ev.returnValue = false;
-                        return false;
-                    }
+            //         var prevent = function () {
+            //             // console.log("prevent")
+            //             ev.stopPropagation();
+            //             ev.preventDefault();
+            //             ev.returnValue = false;
+            //             return false;
+            //         }
 
-                    if (!up && -delta > scrollHeight - height - scrollTop) {
-                        // Scrolling down, but this will take us past the bottom.
-                        $this.scrollTop(scrollHeight);
-                        return prevent();
-                    } else if (up && delta > scrollTop) {
-                        // Scrolling up, but this will take us past the top.
-                        $this.scrollTop(0);
-                        return prevent();
-                    }
-                }
-                )
-            }
-                , 0)
+            //         if (!up && -delta > scrollHeight - height - scrollTop) {
+            //             // Scrolling down, but this will take us past the bottom.
+            //             $this.scrollTop(scrollHeight);
+            //             return prevent();
+            //         } else if (up && delta > scrollTop) {
+            //             // Scrolling up, but this will take us past the top.
+            //             $this.scrollTop(0);
+            //             return prevent();
+            //         }
+            //     }
+            //     )
+            // }
+            //     , 0)
         };
     </script>
 </body>
